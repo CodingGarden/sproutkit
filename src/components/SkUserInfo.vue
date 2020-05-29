@@ -63,9 +63,13 @@ export default Vue.extend({
 
   .name {
     font-size: 1.2rem;
-    margin: 0 0.25rem;
+    margin: 0 0.5rem;
     font-family: 'Fira Sans', sans-serif;
     color: inherit;
+  }
+
+  .country {
+    font-size: 1rem;
   }
 
   .team {
