@@ -24,3 +24,5 @@ yarn-error.log*
 *.sw?
 
 styleguide
+#Electron-builder output
+/dist_electron

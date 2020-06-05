@@ -1,7 +1,7 @@
 <template>
   <div class="avatar" :style="{ '--size': size }">
     <img :src="image" />
-    <span class="sub-badge" v-if="subscriber">
+    <span class="sub-badge" v-if="subscriberBadge">
       <img :src="subscriberBadge" />
     </span>
   </div>
@@ -12,19 +12,24 @@ import Vue from 'vue';
 
 export default Vue.extend({
   props: {
+    /**
+     * The size of the Avatar. Can be any valid CSS unit.
+    */
     size: {
       default: '50px',
       type: String,
     },
+    /**
+     * Any valid avatar url.
+    */
     image: {
       required: true,
       type: String,
     },
-    subscriber: Boolean,
-    subscriberBadge: {
-      default: 'https://static-cdn.jtvnw.net/badges/v1/5b8a0d76-4670-4f99-8874-964e20b7a839/3',
-      type: String,
-    },
+    /**
+     * Any valid image url. Position a subscriber badge image on top of the Avatar.
+    */
+    subscriberBadge: String,
   },
 });
 </script>
@@ -64,13 +69,12 @@ export default Vue.extend({
 ```jsx
 <sk-avatar
   image="https://static-cdn.jtvnw.net/jtv_user_pictures/9208217791868efc-profile_image-300x300.png"
-  subscriber
+  subscriber-badge="https://static-cdn.jtvnw.net/badges/v1/5b8a0d76-4670-4f99-8874-964e20b7a839/3"
 />
 ```
 
 ```jsx
 <sk-avatar
-  subscriber
   image="https://static-cdn.jtvnw.net/jtv_user_pictures/a3bf78e1-97b5-4955-b8ac-46882b80cda2-profile_image-300x300.png"
   subscriber-badge="https://static-cdn.jtvnw.net/badges/v1/2b8f7e52-7000-42a4-81e7-9e5102529d12/3"
 />
@@ -91,7 +95,7 @@ Size is a string that must be a valid CSS unit.
 <sk-avatar
   size="10rem"
   image="https://static-cdn.jtvnw.net/jtv_user_pictures/6043c683-0db5-4e66-a37f-7df8b76bca71-profile_image-300x300.png"
-  subscriber
+  subscriber-badge="https://static-cdn.jtvnw.net/badges/v1/5b8a0d76-4670-4f99-8874-964e20b7a839/3"
 />
 ```
 </docs>

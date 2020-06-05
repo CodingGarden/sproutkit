@@ -1,7 +1,7 @@
 <template>
   <div class="user-info" :style="{ '--color': color }">
     <span class="badge" v-for="badge in badgeList" :key="badge.id">
-      <img :src="badge.url" :alt="badge.name">
+      <img :srcset="badge.srcSet" :src="badge.url" :alt="badge.name" :title="badge.name">
     </span>
     <span class="name">{{name}}</span>
     <span v-if="countryCode" :class="`country flag-icon flag-icon-${countryCode}`"></span>
@@ -15,31 +15,53 @@
 import Vue from 'vue';
 
 import Badge from '@/interfaces/Badge';
-import getBadges from '@/utils/getBadges';
+import getBadges from '@/lib/getBadges';
 
 export default Vue.extend({
   data: () => ({
     badgeList: [] as Badge[],
   }),
   props: {
+    /**
+     * The username to display.
+    */
     name: {
       required: true,
       type: String,
     },
+    /**
+     * The raw badge string from twitch irc.
+    */
     badges: {
       default: '',
       type: String,
     },
+    /**
+     * The color of the username / team badge.
+    */
     color: {
       default: 'inherit',
       type: String,
     },
+    /**
+     * The channel id the message was sent in. Ssed to retrieve channel specific badges.
+    */
+    channelId: String,
+    /**
+     * 2 Character Country code. Used to display a flag next to the users name.
+    */
     countryCode: String,
+    /**
+     * The name of the team badge. Can be any valid font awesome brand name.
+    */
     team: String,
   },
   async created() {
     if (this.$props.badges) {
-      this.badgeList = await getBadges(this.$props.badges);
+      this.badgeList = await getBadges(
+        this.$props.badges,
+        this.$props.channelId,
+      );
     }
   },
 });
@@ -49,7 +71,7 @@ export default Vue.extend({
 @import url('https://fonts.googleapis.com/css?family=Fira+Sans');
 
 .user-info {
-  --size: 20px;
+  --size: 25px;
   --color: inherit;
   display: flex;
   align-items: center;
@@ -86,6 +108,7 @@ export default Vue.extend({
 <sk-user-info
   name="Alca"
   badges="moderator/1,founder/0,sub-gifter/1"
+  channelId="413856795"
 />
 ```
 
@@ -94,6 +117,7 @@ export default Vue.extend({
   name="AndrewLaneX"
   badges="moderator/1,subscriber/0,premium/1"
   color="#169980"
+  channelId="413856795"
 />
 ```
 
@@ -102,6 +126,7 @@ export default Vue.extend({
   name="ShiDotMoe"
   badges="vip/1,subscriber/0"
   color="#FD6CB4"
+  channelId="413856795"
 />
 ```
 
@@ -110,6 +135,7 @@ export default Vue.extend({
   name="shaggieh"
   badges="vip/1,subscriber/0,bits-charity/1"
   color="#7000D7"
+  channelId="413856795"
 />
 ```
 
