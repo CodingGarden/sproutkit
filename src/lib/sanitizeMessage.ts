@@ -38,7 +38,7 @@ export default function sanitizeMessage(message: string, trusted: boolean) {
     });
   }
   return DOMPurify.sanitize(converter.makeHtml(message), {
-    ALLOWED_TAGS: ['img'],
-    ALLOWED_ATTR: [],
+    ALLOWED_TAGS: ['img', 'font', 'big', 'small', 'mark'],
+    ALLOWED_ATTR: ['src', 'color', 'face', 'size', 'dir', 'title'],
   });
 }
