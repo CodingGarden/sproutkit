@@ -1,7 +1,7 @@
 <template>
   <div class="chat-card" :style="{ '--color': color, '--background-color': backgroundColor }">
     <div class="info-line">
-      <sk-avatar v-if="image" :image="image" />
+      <sk-avatar v-if="image && !me" :image="image" />
       <sk-user-info
         class="user-info"
         :color="contrastedColor"
@@ -11,14 +11,18 @@
         :team="team"
         :channelId="channelId"
       />
-      <div class="info-line-end">
+      <span v-if="me" class="me">
+        <span v-if="sanitizedMessage" :style="{ color: contrastedColor }" v-html="sanitizedMessage"></span>
+        <span v-else :style="{ color: contrastedColor }">{{message}}</span>
+      </span>
+      <div class="info-line-end" :class="{ 'info-line-end-me': me  }">
         <!-- @slot The space to the right of the user info. -->
         <slot name="info-line-end"></slot>
       </div>
     </div>
-    <p v-if="sanitizedMessage" class="message" v-html="sanitizedMessage"></p>
-    <p v-else class="message">{{message}}</p>
-    <div class="action-line">
+    <span v-if="sanitizedMessage && !me" class="message" v-html="sanitizedMessage"></span>
+    <span v-if="!sanitizedMessage && !me" class="message">{{message}}</span>
+    <div class="action-line" v-if="!me">
       <div class="line-start">
         <!-- @slot The bottom of the card to the left of the time sent. -->
         <slot name="action-line-start"></slot>
@@ -106,6 +110,10 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
+    /**
+     * Set to true if the message text color should be the same as the user color
+    */
+    me: Boolean,
   },
   computed: {
     sanitizedMessage(): string {
@@ -148,18 +156,33 @@ export default Vue.extend({
     margin-left: 0.5rem;
   }
 
+  .me {
+    margin-left: 0.5rem;
+    max-height: 200px;
+    overflow-wrap: break-word;
+    overflow: auto;
+    p {
+      margin: 0;
+      display: inline;
+    }
+  }
+
   .message {
-    padding: 0.5rem 0;
-    margin: 0;
+    display: block;
+    padding: 0.1rem 0;
+    margin: 0.2rem 0 0 0;
     overflow-wrap: break-word;
     height: 60%;
     max-height: 200px;
     overflow: auto;
   }
 
+
   .action-line {
     display: flex;
     justify-content: space-between;
+    position: relative;
+    margin-top: 1rem;
 
     .line-start {
       flex-grow: 1;
@@ -167,7 +190,22 @@ export default Vue.extend({
 
     .time-sent {
       font-size: 0.75rem;
+      min-width: 15%;
+      text-align: right;
+      position: absolute;
+      bottom: 0;
+      right: 0.5rem;
     }
+  }
+
+  .info-line-end-me {
+    visibility: hidden;
+  }
+}
+
+.chat-card:hover {
+  .info-line-end-me {
+    visibility: visible;
   }
 }
 </style>

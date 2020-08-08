@@ -1,6 +1,8 @@
 import DOMPurify from 'dompurify';
 import showdown from 'showdown';
 
+import whitelist from '../whitelist';
+
 const converter = new showdown.Converter();
 
 const so = (option: string) => {
@@ -17,6 +19,15 @@ const so = (option: string) => {
   'openLinksInNewWindow',
   'simplifiedAutoLink',
 ].forEach(so);
+
+DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+  if (node.hasAttribute('src')) {
+    const src = node.getAttribute('src') || '';
+    if (!whitelist.some((item) => item.exec(src))) {
+      node.setAttribute('src', 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp');
+    }
+  }
+});
 
 export default function sanitizeMessage(message: string, trusted: boolean) {
   if (trusted) {

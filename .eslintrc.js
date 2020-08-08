@@ -17,6 +17,8 @@ module.exports = {
     '@typescript-eslint/camelcase': 0,
     '@typescript-eslint/ban-ts-ignore': 0,
     'no-param-reassign': 0,
+    'no-return-assign': 0,
+    'no-underscore-dangle': 0,
   },
   overrides: [
     {

@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "serve:overlay": "vue-cli-service serve ./src/apps/overlay/main.ts",
+    "serve:vox": "vue-cli-service serve ./src/apps/vox/main.ts",
+    "serve:chat-web": "vue-cli-service serve ./src/apps/chat-web/main.ts",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",

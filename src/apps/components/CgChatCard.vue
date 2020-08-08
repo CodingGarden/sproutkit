@@ -12,6 +12,7 @@
     :message="content"
     :createdAt="message.timeSent"
     :trustMessage="trustMessage"
+    :me="message.message_type === 'action' || message.emote_only"
     class="message messages-item"
     :class="{
       highlight: message.type === 'highlight'
@@ -59,8 +60,11 @@
       </div>
     </template>
     <template v-slot:action-line-start>
-      <div class="country" v-if="user.country">
-        {{user.country.name}}
+      <div class="status-line">
+        <span class="status" v-if="sanitizedStatus" v-html="sanitizedStatus"></span>
+        <span class="country" v-if="user.country">
+          {{user.country.name}}
+        </span>
       </div>
     </template>
   </sk-chat-card>
@@ -69,6 +73,7 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue';
 
+import sanitizeMessage from '@/lib/sanitizeMessage';
 import SkChatCard from '@/components/SkChatCard.vue';
 import User from '@/interfaces/User';
 import Message from '@/interfaces/Message';
@@ -137,6 +142,12 @@ export default Vue.extend({
           < new Date(Date.now() - 1000 * 60 * 60 * 24 * 2)
       );
     },
+    sanitizedStatus(): string {
+      return this.$props.user.status ? sanitizeMessage(
+        this.$props.user.status,
+        this.trustMessage,
+      ) : '';
+    },
   },
 });
 </script>
@@ -157,9 +168,29 @@ export default Vue.extend({
   font-size: 2rem !important;
 }
 
+.status-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .country {
   font-style: italic;
   font-size: 0.8rem;
   text-align: center;
+}
+
+.status {
+  font-style: italic;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-bottom: 0.35rem;
+  max-height: 2.5rem;
+  max-width: 60%;
+  overflow: hidden;
+
+  img[src$="#emote"] {
+    height: 25px;
+  }
 }
 </style>

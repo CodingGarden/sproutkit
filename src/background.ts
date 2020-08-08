@@ -6,6 +6,8 @@ import {
   /* installVueDevtools */
 } from 'vue-cli-plugin-electron-builder/lib';
 
+import whitelist from './whitelist';
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -55,27 +57,11 @@ function createWindow() {
     const filter = {
       urls: ['*://*/*'],
     };
-    const whitelist = [
-      /^https:\/\/api\.coding\.garden\//,
-      /^http:\/\/localhost:(\d+)\//,
-      /^http:\/\/10\.0\.0\.(\d+):(\d+)\//,
-      /^https:\/\/fonts\.googleapis\.com\//,
-      /^https:\/\/badges\.twitch\.tv\//,
-      /^https:\/\/static-cdn\.jtvnw\.net\//,
-      /^https:\/\/fonts\.gstatic\.com\//,
-      /^https:\/\/cdn\.betterttv\.net\//,
-      /^https:\/\/cdn\.frankerfacez\.com\//,
-      /^https:\/\/(static|cdn)\.alca\.tv\//,
-      /^https:\/\/secretbyte\.net\//,
-      /^https:\/\/turnergames\.net\//,
-      /^https:\/\/i\.lungers\.com\//,
-      /^https:\/\/i\.imgur\.com\/(tcLl4Dz|rD7b0Ki|pukCZL7|TFt8RMh|gtkM6u3|Hl734P3|Pyx1Nqx|UC7eiSh)\.(png|gif)$/,
-    ];
     session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
       if (whitelist.some((item) => item.exec(details.url))) return callback({});
       console.log('blocked', details.url);
       return callback({
-        redirectURL: 'https://cdn.betterttv.net/emote/5e2b2ae78af14b5f1b445591/3x#emote',
+        redirectURL: 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp',
       });
     });
     session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
@@ -84,7 +70,7 @@ function createWindow() {
         return callback({
           statusLine: '302 Found',
           responseHeaders: [
-            'Location: https://cdn.betterttv.net/emote/5e2b2ae78af14b5f1b445591/3x#emote',
+            'Location: https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp',
           ],
         });
       }

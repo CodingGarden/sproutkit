@@ -31,15 +31,8 @@
         🅿️
         <span v-if="parked.length" class="count">{{parked.length}}</span>
       </button>
-      <button
-        class="action-button"
-        @click="toggleFilter('command')"
-        :class="{ active: filters.command }"
-      >
-        🤖
-      </button>
     </div>
-    <cg-message-list @ack="ack" @park="park" :focus="focus" :messages="filteredMessages"/>
+    <cg-message-list @ack="ack" @park="park" :focus="focus" :messages="visibleMessages"/>
   </div>
 </template>
 
@@ -82,24 +75,66 @@ export default Vue.extend({
   }),
   computed: {
     follows(): Message[] {
-      return this.messages.filter((m) => !m.ack && m.type === 'follow');
+      return this.messages.filter((m) => !m.ack && m.type === 'follow').reverse();
     },
     rewards(): Message[] {
-      return this.messages.filter((m) => !m.ack && m.type === 'reward');
+      return this.messages.filter((m) => !m.ack && m.type === 'reward').reverse();
     },
     parked(): Message[] {
-      return this.messages.filter((m) => !m.ack && m.parked);
+      return this.messages.filter((m) => !m.ack && m.parked).reverse();
+    },
+    greetings(): Message[] {
+      const regexp = new RegExp(this.filter, 'gi');
+      const seenUser = new Set();
+      return this.messages.filter(
+        (m) => {
+          if (seenUser.has(m.username)) return false;
+          const showMessage = !m.ack
+            && m.message.match(regexp)
+            && m.type !== 'command'
+            && !m.parked;
+          if (showMessage) {
+            seenUser.add(m.username);
+            return true;
+          }
+          return false;
+        },
+      );
     },
     filteredMessages(): Message[] {
-      const regexp = new RegExp(this.filter, 'gi');
+      let username: string | RegExp = '';
+      let { filter } = this;
+      const usernameMatch = new RegExp('(.*)from\\:([a-z]+)\\b', 'i');
+      if (filter.includes('from:')) {
+        const matches = filter.match(usernameMatch);
+        if (matches && matches[2]) {
+          [,, username] = matches;
+          filter = filter.replace(`from:${username}`, '').trim();
+          username = new RegExp(username, 'gi');
+        }
+      }
+      const regexp = new RegExp(filter, 'gi');
       return this.messages.filter(
-        (m) => !m.ack && (m.message.match(regexp)
-          || m.username.match(regexp))
-          && (this.filters.follow ? m.type === 'follow' : true)
-          && (this.filters.reward ? m.type === 'reward' : true)
-          && (this.filters.parked ? m.parked : !m.parked)
-          && (this.filters.command ? m.type === 'command' : m.type !== 'command'),
+        (m) => {
+          let showMessage = !m.ack
+            && m.type !== 'command'
+            && !m.parked;
+          if (username) {
+            showMessage = showMessage && !!m.username.match(username);
+          }
+          if (filter) {
+            showMessage = showMessage && !!m.message.match(regexp);
+          }
+          return showMessage;
+        },
       );
+    },
+    visibleMessages(): Message[] {
+      if (this.filters.follow) return this.follows;
+      if (this.filters.reward) return this.rewards;
+      if (this.filters.parked) return this.parked;
+      if (this.filters.greeting) return this.greetings;
+      return this.filteredMessages;
     },
   },
   methods: {
@@ -110,6 +145,12 @@ export default Vue.extend({
         await twitchChat.patch(message.id, {
           ack: true,
         });
+      }
+      if (this.filters.parked || (message.type && message.type in this.filters)) {
+        if (this.visibleMessages.length === 0) {
+          // @ts-ignore
+          this.toggleFilter(this.filters.parked ? 'parked' : message.type);
+        }
       }
     },
     async park(message: Message) {
@@ -135,7 +176,7 @@ export default Vue.extend({
         this.showSearch = false;
       } else {
         this.toggleFilter('greeting');
-        this.filter = 'hi|hello|hey|morning|afternoon';
+        this.filter = '\\b(hi|hello|hey|morning|afternoon|howdy)\\b';
         this.showSearch = true;
       }
     },
@@ -155,7 +196,11 @@ export default Vue.extend({
       }
     });
     const messageIds = new Set();
-    const messages = await twitchChat.find({});
+    const messages = await twitchChat.find({
+      query: {
+        commands: false,
+      },
+    });
     const allMessages = messages
       // @ts-ignore
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -217,7 +262,6 @@ export default Vue.extend({
     });
     this.messages = allMessages;
     twitchRewards.on('created', (data: any) => {
-      console.log(data);
       const { redemption } = data;
       const content = `${redemption.user.display_name || redemption.user.login} has redeemed: ${redemption.reward.title} - ${redemption.reward.prompt}`;
 
@@ -302,7 +346,7 @@ export default Vue.extend({
       this.messages.forEach((message) => {
         message.timeSent = timeago.format(message.created_at);
       });
-      this.messages = this.messages.slice(0, 500);
+      this.messages = this.messages.filter((m) => m.type !== 'command').slice(0, 1000);
     }, 2000);
   },
 });
@@ -358,7 +402,7 @@ export default Vue.extend({
   }
 
   &.focus {
-    opacity: 0.2;
+    opacity: 0.3;
   }
 }
 
@@ -370,12 +414,15 @@ export default Vue.extend({
   transition: transform 500ms;
 }
 
-.messages-enter-active,
-.messages-leave-active {
+.messages-enter-active {
   transition: all 500ms ease-in;
 }
 
-.messages-enter,
+.messages-leave-active {
+  transition: all 200ms ease-in;
+}
+
+// .messages-enter,
 .messages-leave-to {
   opacity: 0;
   transform: translateY(-50px) translateX(600px);
@@ -390,7 +437,8 @@ export default Vue.extend({
 }
 
 .messages.focus {
-  opacity: 0.2;
+  opacity: 0.3;
+  filter: blur(1px);
   transition: opacity 1s linear;
 }
 
@@ -401,5 +449,9 @@ img[src$="#emote"] {
 a,
 a:visited {
   color: #e6af2e;
+}
+
+p {
+  margin: 0;
 }
 </style>

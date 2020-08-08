@@ -2,15 +2,16 @@
   <div id="app">
     <div class="boxes">
       <div class="message-box">
-        <marquee>{{message || 'Hello friends!'}}</marquee>
+        <marquee>{{message || 'Welcome everyone! Starting soon...'}}</marquee>
       </div>
     </div>
     <div class="video-wrapper">
       <video class="video" autoplay muted loop src="https://i.imgur.com/1uAhoFz.mp4"></video>
+      <div v-if="credits" class="credits"></div>
       <div class="video-controls">
         <div class="video-scrub-bar"></div>
         <div class="video-button play">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" fill="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" fill="white" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
         </div>
         <div class="video-button next">
           <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" fill="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
@@ -23,7 +24,7 @@
         </div>
       </div>
     </div>
-    <div class="countdown">
+    <div class="countdown" v-if="!hideTimer">
       <p class="countdown-message">
         <span id="counter">{{counter}}</span>
       </p>
@@ -51,8 +52,8 @@
       <div class="up-next-preview">
         <img src="https://i.imgur.com/Y7rMbWo.png">
         <div class="up-next-info">
-          <p class="up-next-title">AMA / Q&A</p>
-          <p class="up-next-subtitle">Category: Just Chatting</p>
+          <p class="up-next-title">{{next.title}}</p>
+          <p class="up-next-subtitle">Category: {{next.category}}</p>
         </div>
       </div>
     </div>
@@ -82,10 +83,15 @@ export default Vue.extend({
     botId: '519135902',
     broadcasterId: '413856795',
     messages: [] as Message[],
-    counter: '05:00',
+    counter: '15:00',
     startTime: Date.now(),
     message: '',
     hideTimer: false,
+    credits: false,
+    next: {
+      title: '⚔️ CLASH OF CODE',
+      category: 'Science & Technology',
+    },
   }),
   computed: {
     recentMessages(): Message[] {
@@ -94,7 +100,7 @@ export default Vue.extend({
         (m) => !m.ack
             && m.type !== 'command',
         // && new Date(m.created_at) > Date.now() - 1000 * 60),
-      );
+      ).slice(0, 10);
     },
   },
   methods: {
@@ -119,71 +125,86 @@ export default Vue.extend({
   },
   async created() {
     // window.startAnmiation();
-    this.startTime = Date.now() + 1000 * 5 * 60;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('credits')) {
+      this.message = 'Thanks for tuning in! Join us in this raid...';
+      this.hideTimer = true;
+      this.credits = true;
+      this.next.title = '{🌱} Coding {💚} Garden {🌱} Raid';
+      this.next.category = 'TBD';
+    }
+    this.startTime = Date.now() + 1000 * 15 * 60;
     this.updateCountdown();
     const messageIds = new Set();
-    const messages = await twitchChat.find({});
-    const allMessages = messages
-      // @ts-ignore
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .filter((message: Message) => {
-        if (messageIds.has(message.id)) return false;
-        // @ts-ignore
-        // if (new Date(message.created_at) < Date.now() - 1000 * 60) return false;
-        messageIds.add(message.id);
-        message.timeSent = timeago.format(message.created_at);
-        return true;
+    this.messages = [];
+    if (!this.credits) {
+      const messages = await twitchChat.find({
+        query: {
+          commands: false,
+        },
       });
-    const names = [
-      ...new Set(allMessages.map((message: Message) => message.username)),
-    ];
-    const users = await twitchUsers.find({
-      query: {
-        names,
-      },
-    });
-    const usersByName = users.reduce(
-      (byName: Map<string, User>, user: User) => {
-        byName.set(user.name, user);
-        return byName;
-      },
-      new Map<string, User>(),
-    );
-    allMessages.forEach((message: any) => {
-      const followedUsername = (message.message.match(
-        /Thank you for following on Twitch (.*)!/,
-      ) || [])[1];
-      if (message.username === 'streamlabs' && followedUsername) {
-        if (followedUsername) {
-          message.type = 'follow';
-          message.message = getRandomFollowMessage().replace(
-            /\{\{username\}\}/g,
-            `<strong>${followedUsername}</strong>`,
-          );
-          message.color = '#F8C630';
-          message.badges_raw = '';
-          message.user = {
-            name: '',
-            display_name: '👋 Follow  👋',
-            logo: 'https://i.imgur.com/rD7b0Ki.png',
-            follow: true,
+      const allMessages = messages
+        // @ts-ignore
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .filter((message: Message) => {
+          if (messageIds.has(message.id)) return false;
+          // @ts-ignore
+          // if (new Date(message.created_at) < Date.now() - 1000 * 60) return false;
+          messageIds.add(message.id);
+          message.timeSent = timeago.format(message.created_at);
+          return true;
+        });
+      const names = [
+        ...new Set(allMessages.map((message: Message) => message.username)),
+      ];
+      const users = await twitchUsers.find({
+        query: {
+          names,
+        },
+      });
+      const usersByName = users.reduce(
+        (byName: Map<string, User>, user: User) => {
+          byName.set(user.name, user);
+          return byName;
+        },
+        new Map<string, User>(),
+      );
+      allMessages.forEach((message: any) => {
+        const followedUsername = (message.message.match(
+          /Thank you for following on Twitch (.*)!/,
+        ) || [])[1];
+        if (message.username === 'streamlabs' && followedUsername) {
+          if (followedUsername) {
+            message.type = 'follow';
+            message.message = getRandomFollowMessage().replace(
+              /\{\{username\}\}/g,
+              `<strong>${followedUsername}</strong>`,
+            );
+            message.color = '#F8C630';
+            message.badges_raw = '';
+            message.user = {
+              name: '',
+              display_name: '👋 Follow  👋',
+              logo: 'https://i.imgur.com/rD7b0Ki.png',
+              follow: true,
+            };
+          }
+        } else {
+          if (message.message.match(/^!\w/)) {
+            message.type = 'command';
+          }
+  
+          if (message.msg_id === 'highlighted-message') {
+            message.type = 'highlight';
+          }
+  
+          message.user = usersByName.get(message.username) || {
+            name: 'Not Found',
           };
         }
-      } else {
-        if (message.message.match(/^!\w/)) {
-          message.type = 'command';
-        }
-
-        if (message.msg_id === 'highlighted-message') {
-          message.type = 'highlight';
-        }
-
-        message.user = usersByName.get(message.username) || {
-          name: 'Not Found',
-        };
-      }
-    });
-    this.messages = allMessages;
+      });
+      this.messages = allMessages;
+    }
     twitchRewards.on('created', (data: any) => {
       const { redemption } = data;
       const content = `${redemption.user.display_name
@@ -283,7 +304,7 @@ export default Vue.extend({
       this.messages.forEach((message) => {
         message.timeSent = timeago.format(message.created_at);
       });
-      this.messages = this.messages.slice(0, 500);
+      this.messages = this.messages.filter((m) => m.type !== 'command').slice(0, 10);
     }, 2000);
   },
 });
@@ -474,6 +495,7 @@ a:visited {
   width: 100%;
   height: 100%;
   background: black;
+  border: none;
 }
 
 .video-info {
@@ -558,5 +580,14 @@ a:visited {
   color: rgb(170, 170, 170);
   margin-top: 1rem;
   margin-left: 1rem;
+}
+
+.credits {
+  background: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
