@@ -1,14 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import Badge from '@/interfaces/Badge';
 import BadgesResponse, {
   BadgeResponseItem,
 } from '@/interfaces/BadgesResponse';
 
 const BADGES_BASE_URL = 'https://badges.twitch.tv/v1/badges';
-
-let badgeInfo: BadgesResponse;
-const channelBadgeInfo: {
-  [key: string]: BadgesResponse;
-} = {};
 
 const getSrcSet = (versionInfo: BadgeResponseItem) => [
   [versionInfo.image_url_4x, '4x'].join(' '),
@@ -17,6 +13,35 @@ const getSrcSet = (versionInfo: BadgeResponseItem) => [
 ].join(', ');
 
 const cache = new Map<string, Badge[]>();
+const badgeInfoCache = new Map<string, BadgesResponse>();
+
+async function getBadgeInfo() {
+  if (badgeInfoCache.has('global')) return badgeInfoCache.get('global');
+  const badgePromise = (async () => {
+    const response = await fetch(`${BADGES_BASE_URL}/global/display`);
+    const badgeInfo = (await response.json()) as BadgesResponse;
+    badgeInfoCache.set('global', badgeInfo);
+    return badgeInfo;
+  })();
+  // @ts-ignore
+  badgeInfoCache.set('global', badgePromise);
+  return badgePromise;
+}
+
+async function getChannelBadgeInfo(channelId: string) {
+  if (badgeInfoCache.has(channelId)) return badgeInfoCache.get(channelId);
+  const badgePromise = (async () => {
+    const response = await fetch(
+      `${BADGES_BASE_URL}/channels/${channelId}/display`,
+    );
+    const badgeInfo = (await response.json()) as BadgesResponse;
+    badgeInfoCache.set(channelId, badgeInfo);
+    return badgeInfo;
+  })();
+  // @ts-ignore
+  badgeInfoCache.set(channelId, badgePromise);
+  return badgePromise;
+}
 
 export default async function getBadges(
   badges: string,
@@ -24,47 +49,45 @@ export default async function getBadges(
 ): Promise<Badge[]> {
   const cacheName = badges + channelId;
   if (cache.has(cacheName)) return cache.get(cacheName) as Badge[];
-  if (!badgeInfo) {
-    const response = await fetch(`${BADGES_BASE_URL}/global/display`);
-    badgeInfo = (await response.json()) as BadgesResponse;
-  }
-  if (channelId && !channelBadgeInfo[channelId]) {
-    const response = await fetch(
-      `${BADGES_BASE_URL}/channels/${channelId}/display`,
-    );
-    channelBadgeInfo[channelId] = (await response.json()) as BadgesResponse;
-  }
-  const results: Badge[] = [];
-  badges.split(',').forEach((badge) => {
-    const [name, version] = badge.split('/');
-    let versionInfo: BadgeResponseItem | null = null;
-    if (channelId && name === 'subscriber') {
-      if (!channelBadgeInfo[channelId]) return;
-      const info = channelBadgeInfo[channelId].badge_sets[name];
-      if (info && info.versions[version]) {
-        versionInfo = info.versions[version];
-        if (!versionInfo.srcSet) {
-          versionInfo.srcSet = getSrcSet(versionInfo);
+  const badgePromise = (async () => {
+    const badgeInfo = await getBadgeInfo();
+    const channelBadgeInfo = await getChannelBadgeInfo(channelId || '');
+    const results: Badge[] = [];
+    badges.split(',').forEach((badge) => {
+      const [name, version] = badge.split('/');
+      let versionInfo: BadgeResponseItem | null = null;
+      if (channelId && name === 'subscriber') {
+        if (!channelBadgeInfo) return;
+        const info = channelBadgeInfo.badge_sets[name];
+        if (info && info.versions[version]) {
+          versionInfo = info.versions[version];
+          if (!versionInfo.srcSet) {
+            versionInfo.srcSet = getSrcSet(versionInfo);
+          }
         }
       }
-    }
-    if (!versionInfo) {
-      const info = badgeInfo.badge_sets[name];
-      if (info && info.versions[version]) {
-        versionInfo = info.versions[version];
-        if (!versionInfo.srcSet) {
-          versionInfo.srcSet = getSrcSet(versionInfo);
+      if (!versionInfo) {
+        // @ts-ignore
+        const info = badgeInfo.badge_sets[name];
+        if (info && info.versions[version]) {
+          versionInfo = info.versions[version];
+          if (!versionInfo.srcSet) {
+            versionInfo.srcSet = getSrcSet(versionInfo);
+          }
         }
       }
-    }
-    if (versionInfo) {
-      results.push({
-        name: versionInfo.title,
-        srcSet: versionInfo.srcSet || '',
-        url: versionInfo.image_url_1x || versionInfo.image_url_2x || versionInfo.image_url_4x,
-      });
-    }
-  });
-  cache.set(cacheName, results);
-  return results;
+      if (versionInfo) {
+        results.push({
+          name: versionInfo.title,
+          srcSet: versionInfo.srcSet || '',
+          url: versionInfo.image_url_1x || versionInfo.image_url_2x || versionInfo.image_url_4x,
+        });
+      }
+    });
+    cache.set(cacheName, results);
+    return results;
+  })();
+  // @ts-ignore
+  cache.set(cacheName, badgePromise);
+  return badgePromise;
 }

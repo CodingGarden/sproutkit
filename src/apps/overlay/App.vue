@@ -89,7 +89,7 @@ export default Vue.extend({
     hideTimer: false,
     credits: false,
     next: {
-      title: '⚔️ CLASH OF CODE',
+      title: '🎭 CODING IMPROV | Episode 2',
       category: 'Science & Technology',
     },
   }),

@@ -13,7 +13,7 @@
         :class="{ active: filters.follow }"
       >
         💚
-        <span v-if="follows.length" class="count">{{follows.length}}</span>
+        <span v-if="follows.length" class="count">{{visibleFollows.length}}</span>
       </button>
       <button
         class="action-button"
@@ -37,6 +37,7 @@
 </template>
 
 <script lang="ts">
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import Vue from 'vue';
 import * as timeago from 'timeago.js';
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
@@ -64,18 +65,18 @@ export default Vue.extend({
     focus: false,
     filter: '',
     messages: [] as Message[],
+    follows: [] as Message[],
     filters: {
       greeting: false,
       follow: false,
       reward: false,
       parked: false,
-      command: false,
       vox: false,
     },
   }),
   computed: {
-    follows(): Message[] {
-      return this.messages.filter((m) => !m.ack && m.type === 'follow').reverse();
+    visibleFollows(): Message[] {
+      return this.follows.filter((m) => !m.ack).reverse();
     },
     rewards(): Message[] {
       return this.messages.filter((m) => !m.ack && m.type === 'reward').reverse();
@@ -91,7 +92,6 @@ export default Vue.extend({
           if (seenUser.has(m.username)) return false;
           const showMessage = !m.ack
             && m.message.match(regexp)
-            && m.type !== 'command'
             && !m.parked;
           if (showMessage) {
             seenUser.add(m.username);
@@ -117,7 +117,6 @@ export default Vue.extend({
       return this.messages.filter(
         (m) => {
           let showMessage = !m.ack
-            && m.type !== 'command'
             && !m.parked;
           if (username) {
             showMessage = showMessage && !!m.username.match(username);
@@ -130,7 +129,7 @@ export default Vue.extend({
       );
     },
     visibleMessages(): Message[] {
-      if (this.filters.follow) return this.follows;
+      if (this.filters.follow) return this.visibleFollows;
       if (this.filters.reward) return this.rewards;
       if (this.filters.parked) return this.parked;
       if (this.filters.greeting) return this.greetings;
@@ -176,7 +175,7 @@ export default Vue.extend({
         this.showSearch = false;
       } else {
         this.toggleFilter('greeting');
-        this.filter = '\\b(hi|hello|hey|morning|afternoon|howdy)\\b';
+        this.filter = '\\b(hi|hello|hey|morning|afternoon|evening|howdy|codinggHiYo|VoHiYo)\\b';
         this.showSearch = true;
       }
     },
@@ -196,23 +195,17 @@ export default Vue.extend({
       }
     });
     const messageIds = new Set();
-    const messages = await twitchChat.find({
+    let messages = await twitchChat.find({
       query: {
-        commands: false,
+        created_at: new Date('2020-08-01'),
       },
     });
-    const allMessages = messages
+    messages = messages
       // @ts-ignore
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .filter((message: Message) => {
-        if (messageIds.has(message.id)) return false;
-        messageIds.add(message.id);
-        message.timeSent = timeago.format(message.created_at);
-        return true;
-      })
-      // .slice(0, 100);
+      .slice(0, 1000);
     const names = [
-      ...new Set(allMessages.map((message: Message) => message.username)),
+      ...new Set(messages.map((message: Message) => message.username)),
     ];
     const users = await twitchUsers.find({
       query: {
@@ -226,41 +219,46 @@ export default Vue.extend({
       },
       new Map<string, User>(),
     );
-    allMessages.forEach((message: any) => {
-      const followedUsername = (message.message.match(
-        /Thank you for following on Twitch (.*)!/,
-      ) || [])[1];
-      if (message.username === 'streamlabs' && followedUsername) {
-        if (followedUsername) {
-          message.type = 'follow';
-          message.message = getRandomFollowMessage().replace(
-            /\{\{username\}\}/g,
-            `<strong>${followedUsername}</strong>`,
-          );
-          message.color = '#F8C630';
-          message.badges_raw = '';
-          message.user = {
-            name: '',
-            display_name: '👋 Follow  👋',
-            logo: 'https://i.imgur.com/rD7b0Ki.png',
-            follow: true,
+    const follows = [] as Message[];
+    const allMessages = messages
+      .filter((message: Message) => {
+        if (messageIds.has(message.id)) return false;
+        messageIds.add(message.id);
+        message.timeSent = timeago.format(message.created_at);
+        const followedUsername = (message.message.match(
+          /Thank you for following on Twitch (.*)!/,
+        ) || [])[1];
+        if (message.username === 'streamlabs' && followedUsername) {
+          if (followedUsername) {
+            message.type = 'follow';
+            message.message = getRandomFollowMessage().replace(
+              /\{\{username\}\}/g,
+              `<strong>${followedUsername}</strong>`,
+            );
+            message.color = '#F8C630';
+            message.badges_raw = '';
+            message.user = {
+              name: '',
+              display_name: '👋 Follow  👋',
+              logo: 'https://i.imgur.com/rD7b0Ki.png',
+              follow: true,
+            };
+            follows.push(message);
+          }
+        } else {
+          if (message.msg_id === 'highlighted-message') {
+            message.type = 'highlight';
+          }
+
+          message.user = usersByName.get(message.username) || {
+            name: 'Not Found',
           };
         }
-      } else {
-        if (message.message.match(/^!\w/)) {
-          message.type = 'command';
-        }
+        return true;
+      });
 
-        if (message.msg_id === 'highlighted-message') {
-          message.type = 'highlight';
-        }
-
-        message.user = usersByName.get(message.username) || {
-          name: 'Not Found',
-        };
-      }
-    });
     this.messages = allMessages;
+    this.follows = follows;
     twitchRewards.on('created', (data: any) => {
       const { redemption } = data;
       const content = `${redemption.user.display_name || redemption.user.login} has redeemed: ${redemption.reward.title} - ${redemption.reward.prompt}`;
@@ -330,12 +328,9 @@ export default Vue.extend({
             logo: 'https://i.imgur.com/rD7b0Ki.png',
             follow: true,
           };
+          this.follows.push(message);
         }
       }
-      if (message.message.match(/^!\w/)) {
-        message.type = 'command';
-      }
-
       if (message.msg_id === 'highlighted-message') {
         message.type = 'highlight';
       }
@@ -343,10 +338,12 @@ export default Vue.extend({
       this.messages.unshift(message);
     });
     setInterval(() => {
+      if (this.messages.length > 1000) {
+        this.messages = this.messages.slice(0, 1000);
+      }
       this.messages.forEach((message) => {
         message.timeSent = timeago.format(message.created_at);
       });
-      this.messages = this.messages.filter((m) => m.type !== 'command').slice(0, 1000);
     }, 2000);
   },
 });
