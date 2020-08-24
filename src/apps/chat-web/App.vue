@@ -277,4 +277,8 @@ a,
 a:visited {
   color: #e6af2e;
 }
+
+big, h1, h2 {
+  font-size: 0.8em;
+}
 </style>

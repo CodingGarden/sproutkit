@@ -83,13 +83,13 @@ export default Vue.extend({
     botId: '519135902',
     broadcasterId: '413856795',
     messages: [] as Message[],
-    counter: '15:00',
+    counter: '5:00',
     startTime: Date.now(),
     message: '',
     hideTimer: false,
     credits: false,
     next: {
-      title: '🎭 CODING IMPROV | Episode 2',
+      title: '🤓💬 CODING Q&A',
       category: 'Science & Technology',
     },
   }),
@@ -141,6 +141,7 @@ export default Vue.extend({
       const messages = await twitchChat.find({
         query: {
           commands: false,
+          $limit: 3000,
         },
       });
       const allMessages = messages
@@ -589,5 +590,9 @@ a:visited {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+big, h1, h2 {
+  font-size: 0.8em;
 }
 </style>

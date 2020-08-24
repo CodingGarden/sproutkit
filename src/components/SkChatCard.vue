@@ -198,14 +198,15 @@ export default Vue.extend({
     }
   }
 
-  .info-line-end-me {
-    visibility: hidden;
+  .info-line-end {
+    opacity: 0;
+    transition: opacity 200ms linear;
   }
 }
 
 .chat-card:hover {
-  .info-line-end-me {
-    visibility: visible;
+  .info-line-end {
+    opacity: 1;
   }
 }
 </style>

@@ -34,6 +34,7 @@ export default function sanitizeMessage(message: string, trusted: boolean) {
     return DOMPurify.sanitize(converter.makeHtml(message), {
       FORBID_ATTR: ['style', 'onerror', 'onload', 'class'],
       FORBID_TAGS: [
+        'canvas',
         'table',
         'script',
         'audio',

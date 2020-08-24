@@ -187,10 +187,26 @@ export default Vue.extend({
   margin-bottom: 0.35rem;
   max-height: 2.5rem;
   max-width: 60%;
-  overflow: hidden;
+  // overflow-y: hidden;
 
   img[src$="#emote"] {
     height: 25px;
   }
+}
+
+.message .status-line .status img {
+  max-height: 50px;
+}
+
+.message .status-line .country {
+  opacity: 0;
+}
+
+.message:hover .status-line .country {
+  opacity: 1;
+}
+
+.message .status-line .country {
+  transition: opacity 200ms linear;
 }
 </style>
