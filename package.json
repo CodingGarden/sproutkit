@@ -62,5 +62,6 @@
     "vue-cli-plugin-electron-builder": "^1.4.6",
     "vue-cli-plugin-styleguidist": "~4.30.0",
     "vue-template-compiler": "^2.6.11"
-  }
+  },
+  "license": "MIT"
 }

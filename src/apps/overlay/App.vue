@@ -89,7 +89,7 @@ export default Vue.extend({
     hideTimer: false,
     credits: false,
     next: {
-      title: '🤓💬 CODING Q&A',
+      title: '{ 🌱 } CODE { 💚 }',
       category: 'Science & Technology',
     },
   }),
@@ -141,7 +141,6 @@ export default Vue.extend({
       const messages = await twitchChat.find({
         query: {
           commands: false,
-          $limit: 3000,
         },
       });
       const allMessages = messages
