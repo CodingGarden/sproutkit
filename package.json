@@ -52,7 +52,7 @@
     "@vue/eslint-config-airbnb": "^5.1.0",
     "@vue/eslint-config-typescript": "^5.0.2",
     "@vue/test-utils": "1.0.3",
-    "electron": "^9.2.0",
+    "electron": "^11.5.0",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-vue": "^6.2.2",
