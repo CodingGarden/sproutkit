@@ -1,27 +1,29 @@
 <template>
-  <div class="chat-card" :style="{ '--color': color, '--background-color': backgroundColor }">
+  <div class="chat-card" :class="{ me }" :style="{ '--color': color, '--background-color': backgroundColor }">
     <div class="info-line">
       <sk-avatar v-if="image && !me" :image="image" />
       <sk-user-info
         class="user-info"
         :color="contrastedColor"
+        :altName="altName"
         :name="name"
         :badges="badges"
         :countryCode="countryCode"
         :team="team"
         :channelId="channelId"
+        :pronoun="pronoun"
       />
-      <span v-if="me" class="me">
+      <!-- <span v-if="me" class="me">
         <span v-if="sanitizedMessage" :style="{ color: contrastedColor }" v-html="sanitizedMessage"></span>
         <span v-else :style="{ color: contrastedColor }">{{message}}</span>
-      </span>
+      </span> -->
       <div class="info-line-end" :class="{ 'info-line-end-me': me  }">
         <!-- @slot The space to the right of the user info. -->
         <slot name="info-line-end"></slot>
       </div>
     </div>
-    <span v-if="sanitizedMessage && !me" class="message" v-html="sanitizedMessage"></span>
-    <span v-if="!sanitizedMessage && !me" class="message">{{message}}</span>
+    <span v-if="sanitizedMessage" :style="{ color: me ? contrastedColor : '' }" class="message" v-html="sanitizedMessage"></span>
+    <span v-if="!sanitizedMessage" :style="{ color: me ? contrastedColor : '' }" class="message">{{message}}</span>
     <div class="action-line" v-if="!me">
       <div class="line-start">
         <!-- @slot The bottom of the card to the left of the time sent. -->
@@ -33,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import * as Vue from 'vue';
 
 import { getContrastedColor } from '@/lib/colors';
 import sanitizeMessage from '@/lib/sanitizeMessage';
@@ -44,7 +46,7 @@ interface ChatCardData {
   sanitizedMessage: string;
 }
 
-export default Vue.extend({
+export default Vue.defineComponent({
   components: {
     SkAvatar,
     SkUserInfo,
@@ -80,6 +82,10 @@ export default Vue.extend({
     */
     name: String,
     /**
+     * The alt-name to display.
+    */
+    altName: String,
+    /**
      * The avatar image to display.
     */
     image: String,
@@ -95,6 +101,10 @@ export default Vue.extend({
      * The name of the team badge. Can be any valid font awesome brand name.
     */
     team: String,
+    /**
+     * The pronoun to display
+    */
+    pronoun: String,
     /**
      * The message text to display.
     */
@@ -118,7 +128,7 @@ export default Vue.extend({
   computed: {
     sanitizedMessage(): string {
       return sanitizeMessage(
-        this.$props.message,
+        this.$props.message || '',
         this.$props.trustMessage,
       );
     },
@@ -156,12 +166,13 @@ export default Vue.extend({
     margin-left: 0.5rem;
   }
 
-  .me {
+  &.me {
     margin-left: 0.5rem;
     max-height: 200px;
     overflow-wrap: break-word;
     overflow: auto;
-    p {
+    .message {
+      font-style: italic;
       margin: 0;
       display: inline;
     }

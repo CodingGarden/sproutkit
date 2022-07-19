@@ -4,15 +4,17 @@
     :backgroundColor="backgroundColor"
     channelId="413856795"
     :name="user.display_name || user.name"
+    :altName="user.display_name.toLowerCase() !== user.name.toLowerCase() ? user.name : ''"
     :userColor="userColor"
-    :image="trustUser ? user.logo : ''"
+    :image="trustUser ? (user.profile_image_url || user.logo) : ''"
     :badges="message.badges_raw"
     :countryCode="user.country ? user.country.code : ''"
     :team="user.team"
+    :pronoun="user.pronoun"
     :message="content"
     :createdAt="message.timeSent"
     :trustMessage="trustMessage"
-    :me="message.message_type === 'action' || message.emote_only"
+    :me="message.message_type === 'action'"
     class="message messages-item"
     :class="{
       highlight: message.type === 'highlight'
@@ -71,14 +73,14 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+import * as Vue from 'vue';
 
 import sanitizeMessage from '@/lib/sanitizeMessage';
 import SkChatCard from '@/components/SkChatCard.vue';
 import User from '@/interfaces/User';
 import Message from '@/interfaces/Message';
 
-export default Vue.extend({
+export default Vue.defineComponent({
   components: {
     SkChatCard,
   },
@@ -89,19 +91,19 @@ export default Vue.extend({
     },
     user: {
       required: true,
-      type: Object as PropType<User>,
+      type: Object as Vue.PropType<User>,
     },
     message: {
       required: true,
-      type: Object as PropType<Message>,
+      type: Object as Vue.PropType<Message>,
     },
   },
   computed: {
     trustUser(): boolean {
       return !!(
-        this.$props.message.badges.broadcaster
-        || this.$props.message.badges.moderator
-        || this.$props.message.badges.vip
+        this.$props.message.badges?.broadcaster
+        || this.$props.message.badges?.moderator
+        || this.$props.message.badges?.vip
         || this.$props.user.follow
       );
     },
@@ -122,6 +124,7 @@ export default Vue.extend({
       return this.message.color || '#FFFFFF';
     },
     backgroundColor(): string {
+      if (this.$props.message.first_msg) return '#95190CCC';
       if (this.$props.message.backgroundColor) return `${this.$props.message.backgroundColor}CC`;
       if (this.$props.message.type === 'reward') return '#454ADECC';
       if (this.$props.message.type === 'follow') return '#99B2DDCC';
@@ -187,11 +190,20 @@ export default Vue.extend({
   margin-bottom: 0.35rem;
   max-height: 2.5rem;
   max-width: 60%;
+  p {
+    display: inline-flex;
+    align-items: center;
+  }
   // overflow-y: hidden;
 
   img[src$="#emote"] {
     height: 25px;
+    margin: 0.4rem;
   }
+}
+
+.message {
+  overflow: hidden;
 }
 
 .message .status-line .status img {

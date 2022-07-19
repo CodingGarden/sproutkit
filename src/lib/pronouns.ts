@@ -1,0 +1,15 @@
+export default new Map<string, string>([
+  ['she', 'she/her/hers'],
+  ['he', 'he/him/his'],
+  ['ze', 'ze/hir'],
+  ['they', 'they/them/theirs'],
+  ['co', 'co/cos'],
+  ['none', 'none/alias'],
+  ['xe', 'xe/xem/xyr'],
+  ['hy', 'hy/hym/hys'],
+  ['it', 'it/it/its'],
+  ['one', 'one/ones'],
+  ['em', '\'em'],
+  ['\'em', '\'em'],
+  ['yo', 'yo'],
+]);

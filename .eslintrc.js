@@ -19,6 +19,7 @@ module.exports = {
     'no-param-reassign': 0,
     'no-return-assign': 0,
     'no-underscore-dangle': 0,
+    camelcase: 0,
   },
   overrides: [
     {

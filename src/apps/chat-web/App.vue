@@ -5,7 +5,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
+import * as Vue from 'vue';
 import * as timeago from 'timeago.js';
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import '@fortawesome/fontawesome-free/css/brands.min.css';
@@ -19,7 +22,7 @@ import User from '@/interfaces/User';
 
 const getRandomFollowMessage = () => followMessages[Math.floor(Math.random() * followMessages.length)];
 
-export default Vue.extend({
+export default Vue.defineComponent({
   components: {
     CgMessageList,
   },
@@ -141,7 +144,9 @@ export default Vue.extend({
     twitchChat.on('patched', (message: any) => {
       const existingMessage = this.messages.find((m) => m.id === message.id);
       if (existingMessage) {
-        Object.entries(message).forEach(([prop, value]) => this.$set(existingMessage, prop, value));
+        Object
+          .entries(message)
+          .forEach(([prop, value]) => existingMessage[prop] = value);
       }
     });
     twitchChat.on('created', (message: any) => {
@@ -251,7 +256,7 @@ h6 {
 .messages-enter,
 .messages-leave-to {
   opacity: 0;
-  transform: translateX(600px);
+  transform: translateX(-600px);
 }
 
 .message {

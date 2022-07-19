@@ -1,59 +1,43 @@
 <template>
   <div id="app">
-    <div class="boxes">
-      <div class="message-box">
-        {{message || 'Welcome! Starting soon... ⬇️'}}
-      </div>
-    </div>
-    <div class="video-wrapper">
-      <video class="video" autoplay muted loop src="https://i.imgur.com/1uAhoFz.mp4"></video>
-      <div v-if="credits" class="credits"></div>
-      <div class="video-controls">
-        <div class="video-scrub-bar"></div>
-        <div class="video-button play">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" fill="white" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-        </div>
-        <div class="video-button next">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" fill="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
-        </div>
-        <div class="video-button volume">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-        </div>
-        <div class="video-button live">
-          <span>LIVE</span>
+    <div class="container">
+      <div class="boxes">
+        <div class="message-box">
+          <marquee>{{message || 'Welcome everyone! Starting soon...'}}</marquee>
         </div>
       </div>
-    </div>
-    <div class="countdown" v-if="!hideTimer">
-      <p class="countdown-message">
-        <span id="counter">{{counter}}</span>
-      </p>
-    </div>
-    <div class="video-info">
-      <p>chill garden radio - music to code/study to</p>
-      <div class="links">
-        <p>
-          <img class="emoji" src="https://i.imgur.com/4sQrpoT.png"> coding.garden/support
-        </p>
-        <p>
-          <img class="emoji" src="https://i.imgur.com/hF6nceh.png"> coding.garden/discord
-        </p>
-        <p>
-          <img class="emoji" src="https://i.imgur.com/zaPlNYm.png"> coding.garden/videos
-        </p>
-        <p>
-          <img class="emoji" src="https://i.imgur.com/i8koB4k.png"> coding.garden/gear
-        </p>
+      <div class="video-wrapper">
+        <video class="video" autoplay muted loop src="https://i.imgur.com/1uAhoFz.mp4"></video>
+        <div class="video-controls">
+          <div class="video-scrub-bar"></div>
+          <div class="video-button play">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" fill="white" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+          </div>
+          <div class="video-button next">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" fill="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+          </div>
+          <div class="video-button volume">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          </div>
+          <div class="video-button live">
+            <span>LIVE</span>
+          </div>
+        </div>
       </div>
-    </div>
-    <cg-message-list :focus="false" :buttons="false" :messages="recentMessages" />
-    <div class="up-next">
-      <p>Up Next</p>
-      <div class="up-next-preview">
-        <img src="https://i.imgur.com/Y7rMbWo.png">
-        <div class="up-next-info">
-          <p class="up-next-title">{{next.title}}</p>
-          <!-- <p class="up-next-subtitle">Category: {{next.category}}</p> -->
+      <div class="video-info">
+        <div class="links">
+          <p>
+            <span class="emoji">💚</span> https://coding.garden
+          </p>
+          <p>
+            <span class="emoji">📺</span> https://youtube.com/CodingGarden
+          </p>
+          <p>
+            <span class="emoji">🐦</span> https://twitter.com/Coding_Garden
+          </p>
+          <p>
+            <span class="emoji">🔴</span> https://twitch.tv/CodingGarden
+          </p>
         </div>
       </div>
     </div>
@@ -92,8 +76,8 @@ export default Vue.defineComponent({
     hideTimer: false,
     credits: false,
     next: {
-      title: 'CODING GARDEN',
-      category: 'Just Chatting',
+      title: '{🌱} CODING GARDEN {🌱}',
+      category: 'Science & Technology',
     },
   }),
   computed: {
@@ -130,13 +114,13 @@ export default Vue.defineComponent({
     // window.startAnmiation();
     const params = new URLSearchParams(window.location.search);
     if (params.get('credits')) {
-      this.message = '{💚}Join us in the raid...{💚}';
+      this.message = 'Thanks for tuning in! Join us in this raid...';
       this.hideTimer = true;
       this.credits = true;
       this.next.title = '{🌱} Coding {💚} Garden {🌱} Raid';
       this.next.category = 'TBD';
     }
-    this.startTime = Date.now() + 1000 * 13 * 60;
+    this.startTime = Date.now() + 1000 * 5 * 60;
     this.updateCountdown();
     const messageIds = new Set();
     this.messages = [];
@@ -441,9 +425,9 @@ a:visited {
 .video-wrapper {
   width: 65vw;
   height: calc(65vw * (9/16));
-  position: fixed;
-  top: 7rem;
-  left: 3rem;
+  position: relative;
+  // top: 7rem;
+  // left: 3rem;
 }
 
 .video-controls {
@@ -504,8 +488,6 @@ a:visited {
 }
 
 .video-info {
-  position: fixed;
-  top: calc((65vw * (9/16)) + 8rem);
   margin-left: 3rem;
   font-size: 1.5rem;
   width: 65vw;
@@ -528,8 +510,7 @@ a:visited {
 .boxes {
   width: 65vw;
   display: flex;
-  margin-left: 3rem;
-  padding-top: 1rem;
+  padding-top: 3rem;
   justify-content: space-between;
   font-family: "Press Start 2P";
 }
@@ -598,5 +579,17 @@ a:visited {
 
 big, h1, h2 {
   font-size: 0.8em;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 40%;
+    flex-direction: column;
+}
+
+.emoji {
+  font-size: 2.5rem;
 }
 </style>

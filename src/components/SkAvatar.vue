@@ -8,9 +8,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import * as Vue from 'vue';
 
-export default Vue.extend({
+export default Vue.defineComponent({
   props: {
     /**
      * The size of the Avatar. Can be any valid CSS unit.

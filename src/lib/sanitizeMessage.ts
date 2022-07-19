@@ -32,7 +32,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
 export default function sanitizeMessage(message: string, trusted: boolean) {
   if (trusted) {
     return DOMPurify.sanitize(converter.makeHtml(message), {
-      FORBID_ATTR: ['style', 'onerror', 'onload', 'class'],
+      FORBID_ATTR: ['style', 'size', 'onerror', 'onload', 'class'],
       FORBID_TAGS: [
         'canvas',
         'table',
@@ -51,6 +51,6 @@ export default function sanitizeMessage(message: string, trusted: boolean) {
   }
   return DOMPurify.sanitize(converter.makeHtml(message), {
     ALLOWED_TAGS: ['img', 'font', 'big', 'small', 'mark'],
-    ALLOWED_ATTR: ['src', 'color', 'face', 'size', 'dir', 'title'],
+    ALLOWED_ATTR: ['src', 'color', 'face', 'dir', 'title'],
   });
 }

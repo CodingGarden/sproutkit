@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import {
   app, protocol, BrowserWindow, session, shell,
 } from 'electron';

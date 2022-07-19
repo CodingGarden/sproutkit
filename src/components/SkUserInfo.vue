@@ -3,21 +3,25 @@
     <span class="badge" v-for="badge in badgeList" :key="badge.id">
       <img :srcset="badge.srcSet" :src="badge.url" :alt="badge.name" :title="badge.name">
     </span>
-    <span class="name">{{name}}</span>
+    <span class="name">{{name}} <span v-if="altName">({{altName}})</span></span>
+    <span v-if="pronoun" class="pronouns">({{pronouns}})</span>
     <span v-if="countryCode" :class="`country flag-icon flag-icon-${countryCode}`"></span>
     <span v-if="team" class="team">
-      <i :class="['team-badge', 'fab', `fa-${team}`]"></i>
+      <i :title="team" :class="['team-badge', faClass, `fa-${team}`]"></i>
     </span>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import * as Vue from 'vue';
 
 import Badge from '@/interfaces/Badge';
 import getBadges from '@/lib/getBadges';
+import pronouns from '@/lib/pronouns';
 
-export default Vue.extend({
+import { solidIcons, brandIcons } from '@/lib/faIcons';
+
+export default Vue.defineComponent({
   data: () => ({
     badgeList: [] as Badge[],
   }),
@@ -30,9 +34,23 @@ export default Vue.extend({
       type: String,
     },
     /**
+     * The alt-name to display.
+    */
+    altName: {
+      default: '',
+      type: String,
+    },
+    /**
      * The raw badge string from twitch irc.
     */
     badges: {
+      default: '',
+      type: String,
+    },
+    /**
+     * The preferred pronoun of the user.
+    */
+    pronoun: {
       default: '',
       type: String,
     },
@@ -64,6 +82,16 @@ export default Vue.extend({
       );
     }
   },
+  computed: {
+    pronouns(): string {
+      return pronouns.get(this.pronoun) || '';
+    },
+    faClass(): string {
+      if (solidIcons.has(this.$props.team || '')) return 'fa-solid';
+      if (brandIcons.has(this.$props.team || '')) return 'fa-brands';
+      return '';
+    }
+  },
 });
 </script>
 
@@ -84,7 +112,7 @@ export default Vue.extend({
   }
 
   .name {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     margin: 0 0.5rem;
     font-family: 'Fira Sans', sans-serif;
     color: inherit;
@@ -97,6 +125,11 @@ export default Vue.extend({
   .team {
     margin-left: 0.25rem;
     color: inherit;
+  }
+
+  .pronouns {
+    font-size: 1rem;
+    margin-right: 0.75rem;
   }
 }
 </style>

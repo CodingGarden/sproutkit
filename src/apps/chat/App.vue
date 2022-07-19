@@ -4,6 +4,13 @@
       <input v-if="showSearch" ref="input" class="action-input" v-model="filter" />
       <button
         class="action-button"
+        @click="toggleFilter('firstMessage')"
+        :class="{ active: filters.firstMessage }"
+      >
+        🔰
+      </button>
+      <button
+        class="action-button"
         @click="toggleGreetings()"
         :class="{ active: filters.greeting }"
       >
@@ -39,10 +46,14 @@
 </template>
 
 <script lang="ts">
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import Vue from 'vue';
+import * as Vue from 'vue';
 import * as timeago from 'timeago.js';
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
+import '@fortawesome/fontawesome-free/css/solid.min.css';
 import '@fortawesome/fontawesome-free/css/brands.min.css';
 import 'flag-icon-css/css/flag-icon.min.css';
 
@@ -57,7 +68,7 @@ const getRandomFollowMessage = () => followMessages[Math.floor(Math.random() * f
 let filterTimeout: NodeJS.Timeout;
 let activeTimeout: NodeJS.Timeout;
 
-export default Vue.extend({
+export default Vue.defineComponent({
   components: {
     CgMessageList,
   },
@@ -72,6 +83,7 @@ export default Vue.extend({
     messages: [] as Message[],
     follows: [] as Message[],
     filters: {
+      firstMessage: false,
       greeting: false,
       follow: false,
       reward: false,
@@ -90,6 +102,11 @@ export default Vue.extend({
           this.filterValue = value;
         }, 500);
       },
+    },
+    firstMessages(): Message[] {
+      return this.allMessages
+        .filter((m) => !m.ack && m.first_msg)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     },
     visibleFollows(): Message[] {
       return this.follows
@@ -146,20 +163,25 @@ export default Vue.extend({
           showMessage = showMessage && !!m.message.match(regexp);
         }
         return showMessage;
-      });
+      }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     },
     visibleMessages(): Message[] {
       if (this.filters.follow) return this.visibleFollows;
       if (this.filters.reward) return this.rewards;
       if (this.filters.parked) return this.parked;
       if (this.filters.greeting) return this.greetings;
+      if (this.filters.firstMessage) return this.firstMessages;
       return this.filteredMessages;
     },
   },
   methods: {
     async ack(message: Message) {
-      this.$set(message, 'ack', true);
-      if (message.type !== 'reward') {
+      message.ack = true;
+      if (message.type === 'reward') {
+        await twitchRewards.patch(message._id, {
+          ack: true,
+        });
+      } else {
         await twitchChat.patch(message.id, {
           ack: true,
         });
@@ -193,7 +215,7 @@ export default Vue.extend({
         this.showSearch = false;
       } else {
         this.toggleFilter('greeting');
-        this.filter = '\\b(hi|hello|hey|morning|afternoon|evening|howdy|gday|g\'day|codinggHiYo|VoHiYo)\\b';
+        this.filter = '\\b(hi|hello|\'?ello|hey|yo|cheers|greetings|Hiya|sup|wassup|morning|afternoon|evening|howdy|gday|g\'day|codinggHiYo|VoHiYo|bogaHey)\\b';
         this.showSearch = true;
       }
     },
@@ -237,6 +259,7 @@ export default Vue.extend({
         // created_at: new Date('2020-08-10'),
       },
     });
+    const rewards = await twitchRewards.find();
     const names = [...new Set(messages.map((message: Message) => message.username))];
     const users = await twitchUsers.find({
       query: {
@@ -248,6 +271,35 @@ export default Vue.extend({
       return byName;
     }, new Map<string, User>());
     const follows = [] as Message[];
+    rewards.forEach((data: any) => {
+      const { redemption } = data;
+      const content = `${redemption.user.display_name || redemption.user.login} has redeemed: ${
+        redemption.reward.title
+      } - ${redemption.reward.prompt}`;
+
+      const message = {
+        id: redemption.id,
+        _id: data._id,
+        message: content,
+        content,
+        name: '🎉 Reward Redemption 🎉',
+        username: '🎉 Reward Redemption 🎉',
+        display_name: '🎉 Reward Redemption 🎉',
+        badges_raw: '',
+        badges: {},
+        created_at: new Date(data.timestamp),
+        backgroundColor: redemption.reward.background_color,
+        type: 'reward',
+        user: {
+          name: '',
+          display_name: '🎉 Reward Redemption 🎉',
+          logo: 'https://i.imgur.com/pukCZL7.png',
+          follow: true,
+          subscription: false,
+        },
+      };
+      messages.unshift(message);
+    });
     this.allMessages = messages
       .filter((message: Message) => {
         if (messageIds.has(message.id)) return false;
@@ -277,15 +329,16 @@ export default Vue.extend({
             message.type = 'highlight';
           }
 
-          message.user = usersByName.get(message.username) || {
-            name: 'Not Found',
-          };
+          if (message.type !== 'reward') {
+            message.user = usersByName.get(message.username) || {
+              name: 'Not Found',
+            };
+          }
         }
         return true;
       })
       // @ts-ignore
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
     console.log(this.allMessages.length);
     this.messages = this.allMessages.slice(0, 200);
     this.follows = follows;
@@ -297,6 +350,7 @@ export default Vue.extend({
 
       const message = {
         id: redemption.id,
+        _id: data._id,
         message: content,
         content,
         name: '🎉 Reward Redemption 🎉',
@@ -325,7 +379,9 @@ export default Vue.extend({
     twitchChat.on('patched', (message: any) => {
       const existingMessage = this.messages.find((m) => m.id === message.id);
       if (existingMessage) {
-        Object.entries(message).forEach(([prop, value]) => this.$set(existingMessage, prop, value));
+        Object
+          .entries(message)
+          .forEach(([prop, value]) => existingMessage[prop] = value);
       }
     });
     twitchChat.on('created', (message: any) => {
@@ -453,7 +509,7 @@ export default Vue.extend({
 // .messages-enter,
 .messages-leave-to {
   opacity: 0;
-  transform: translateY(-50px) translateX(600px);
+  transform: translateY(-50px) translateX(100vw);
 }
 
 .message {

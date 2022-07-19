@@ -5,6 +5,7 @@ module.exports = {
   simpleEditor: false,
   components: 'src/components/**/**.vue',
   template: {
+    // TODO: update versions...
     head: {
       links: [{
         rel: 'stylesheet',

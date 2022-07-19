@@ -15,5 +15,6 @@ export default interface User {
   follow: Follow | boolean;
   subscription: Subscription | boolean;
   team?: string;
+  status?: string;
   country?: Country;
 }

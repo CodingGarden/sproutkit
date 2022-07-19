@@ -21,12 +21,12 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+import * as Vue from 'vue';
 
 import CgChatCard from '@/apps/components/CgChatCard.vue';
 import Message from '@/interfaces/Message';
 
-export default Vue.extend({
+export default Vue.defineComponent({
   components: {
     CgChatCard,
   },
@@ -40,7 +40,7 @@ export default Vue.extend({
       default: false,
     },
     messages: {
-      type: Array as PropType<Message[]>,
+      type: Array as Vue.PropType<Message[]>,
       required: true,
     },
   },

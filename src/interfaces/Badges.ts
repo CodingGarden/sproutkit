@@ -3,4 +3,5 @@ export default interface Badges {
   subscriber?: string;
   premium?: string;
   broadcaster?: string;
+  vip?: string;
 }

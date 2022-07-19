@@ -30,6 +30,7 @@ export default interface Message {
   parsedMessage?: string;
   content?: string;
   timeSent?: string;
+  first_msg: boolean;
   type?: string;
   user?: User;
   ack?: boolean;

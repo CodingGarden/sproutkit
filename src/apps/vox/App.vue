@@ -145,7 +145,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
+import * as Vue from 'vue';
 import * as timeago from 'timeago.js';
 
 import CgChatCard from '@/apps/components/CgChatCard.vue';
@@ -168,7 +172,7 @@ const itemsByCommand = {
   '!submit': 'submissions',
 };
 
-export default {
+export default Vue.defineComponent({
   components: {
     CgChatCard,
   },
@@ -245,7 +249,7 @@ export default {
       }
     },
     addLatestMessage(message) {
-      this.$set(this.usersByUsername, message.username, message.user);
+      this.usersByUsername[message.username] = message.user;
       const args = (message.parsedMessage || message.message).split(' ');
       const command = args.shift();
       if (command.match(/^!(ask|idea|submit)/)) {
@@ -328,7 +332,7 @@ export default {
       // main.style.opacity = 1;
     },
   },
-};
+});
 </script>
 
 <style lang="scss">

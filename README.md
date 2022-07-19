@@ -21,6 +21,8 @@ npm run styleguide
 
 ## Electron Chat Overlay
 
+Due to a webpack v4 issue, you must be running node v16 or less to run the electron app.
+
 ```sh
 npm run electron:serve
 ```
