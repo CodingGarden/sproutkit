@@ -44,6 +44,12 @@ export default Vue.defineComponent({
       required: true,
     },
   },
+  mounted() {
+    document.addEventListener('mousemove', e => {
+      document.body.style.setProperty('--mouse-x', e.clientX + 'px');
+      document.body.style.setProperty('--mouse-y', e.clientY + 'px');
+    });
+  },
   methods: {
     ack(message: Message) {
       this.$emit('ack', message);

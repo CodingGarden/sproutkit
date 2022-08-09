@@ -186,6 +186,17 @@ export default Vue.defineComponent({
     height: 60%;
     max-height: 200px;
     overflow: auto;
+
+    :deep(span[data-wrapper]):hover::after {
+      content: attr(data-title);
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      font-size: 1rem;
+      position: fixed;
+      top: var(--mouse-y);
+      left: var(--mouse-x);
+    }
   }
 
 

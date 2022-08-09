@@ -20,12 +20,19 @@ const so = (option: string) => {
   'simplifiedAutoLink',
 ].forEach(so);
 
+DOMPurify.addHook('uponSanitizeElement', (node, data) => {
+  if (node.tagName === 'IMG' && node.parentElement?.tagName !== 'SPAN' && !node.getAttribute('data-wrapped')) {
+    node.setAttribute("data-wrapped", "true");
+    node.outerHTML = `<span data-wrapper="true" data-title="${node.getAttribute("alt")}">${node.outerHTML}</span>`;
+  }
+});
+
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.hasAttribute('src')) {
     const src = node.getAttribute('src') || '';
     if (!whitelist.some((item) => item.exec(src))) {
       node.setAttribute('src', 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp');
-    } else {
+    } else if (node.parentElement?.tagName !== 'SPAN') {
       node.setAttribute('title', node.getAttribute('alt') || '');
     }
   }
@@ -54,7 +61,7 @@ export default function sanitizeMessage(message: string, trusted: boolean) {
     });
   }
   return DOMPurify.sanitize(converter.makeHtml(message), {
-    ALLOWED_TAGS: ['img', 'font', 'big', 'small', 'mark'],
-    ALLOWED_ATTR: ['src', 'color', 'face', 'dir', 'title'],
+    ALLOWED_TAGS: ['img', 'font', 'big', 'small', 'mark', 'span'],
+    ALLOWED_ATTR: ['src', 'color', 'face', 'dir', 'title', 'alt'],
   });
 }
