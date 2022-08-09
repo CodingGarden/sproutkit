@@ -8,7 +8,9 @@ export default [
   /^https:\/\/static-cdn\.jtvnw\.net\//,
   /^https:\/\/fonts\.gstatic\.com\//,
   /^https:\/\/cdn\.betterttv\.net\//,
+  /^https:\/\/cdn\.7tv\.app\/emote\//,
   /^https:\/\/cdn\.frankerfacez\.com\//,
+  /^https:\/\/cdn\.jsdelivr\.net\/npm\/simple-icons@v7\/icons\//,
   /^https:\/\/(static|cdn)\.alca\.tv\//,
   /^https:\/\/secretbyte\.net\//,
   /^https:\/\/turnergames\.net\//,
@@ -16,7 +18,7 @@ export default [
   /^https:\/\/api\.disstreamchat\.com\/images/,
   /^https:\/\/cdn\.therealpygon\.com\//,
   /https:\/\/infi\.s-ul\.eu\//,
-  /https:\/\/s\.mrdemonwolf\.me\//,
+  /https:\/\/s\.mrdemonwolf\.com\//,
   /^https:\/\/i\.giphy\.com\/media\/xUPGcl3ijl0vAEyIDK\/giphy\.webp$/,
   /^https:\/\/i\.imgur\.com\/(tcLl4Dz|rD7b0Ki|pukCZL7|TFt8RMh|gtkM6u3|Hl734P3|Pyx1Nqx|UC7eiSh)\.(png|gif)$/,
 ];

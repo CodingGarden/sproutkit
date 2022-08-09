@@ -124,12 +124,12 @@ export default Vue.defineComponent({
       return this.message.color || '#FFFFFF';
     },
     backgroundColor(): string {
-      if (this.$props.message.first_msg) return '#95190CCC';
+      if (this.$props.message.first_msg) return '#95190CDD';
       if (this.$props.message.backgroundColor) return `${this.$props.message.backgroundColor}CC`;
-      if (this.$props.message.type === 'reward') return '#454ADECC';
-      if (this.$props.message.type === 'follow') return '#99B2DDCC';
-      if (this.$props.message.type === 'highlight') return '#BD2D87CC';
-      return this.trustUser ? '#392F5ACC' : '#191D32AA';
+      if (this.$props.message.type === 'reward') return '#454ADEDD';
+      if (this.$props.message.type === 'follow') return '#99B2DDDD';
+      if (this.$props.message.type === 'highlight') return '#BD2D87DD';
+      return this.trustUser ? '#392F5ADD' : '#191D32AA';
     },
     content(): string {
       return (

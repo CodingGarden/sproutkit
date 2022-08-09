@@ -3,11 +3,18 @@
     <span class="badge" v-for="badge in badgeList" :key="badge.id">
       <img :srcset="badge.srcSet" :src="badge.url" :alt="badge.name" :title="badge.name">
     </span>
-    <span class="name">{{name}} <span v-if="altName">({{altName}})</span></span>
-    <span v-if="pronoun" class="pronouns">({{pronouns}})</span>
+    <span class="name">{{ name }} <span v-if="altName">({{ altName }})</span></span>
+    <span v-if="pronoun" class="pronouns">({{ pronouns }})</span>
     <span v-if="countryCode" :class="`country flag-icon flag-icon-${countryCode}`"></span>
     <span v-if="team" class="team">
-      <i :title="team" :class="['team-badge', faClass, `fa-${team}`]"></i>
+      <i v-if="!simpleIcon" :title="team" :class="['team-badge', faClass, `fa-${team}`]"></i>
+      <div
+        :style="{ fill: `#${simpleIcon.hex}` }"
+        class="simple-icon"
+        v-if="simpleIcon"
+        v-html="simpleIcon.svg"
+      >
+      </div>
     </span>
   </div>
 </template>
@@ -19,7 +26,8 @@ import Badge from '@/interfaces/Badge';
 import getBadges from '@/lib/getBadges';
 import pronouns from '@/lib/pronouns';
 
-import { solidIcons, brandIcons } from '@/lib/faIcons';
+import { solidIcons, brandIcons, simpleIcons } from '@/lib/faIcons';
+import { SimpleIcon } from 'simple-icons';
 
 export default Vue.defineComponent({
   data: () => ({
@@ -86,11 +94,18 @@ export default Vue.defineComponent({
     pronouns(): string {
       return pronouns.get(this.pronoun) || '';
     },
+    simpleIcon(): SimpleIcon | null {
+      const icon = simpleIcons.get(this.$props.team || '');
+      if (icon) {
+        return icon;
+      }
+      return null;
+    },
     faClass(): string {
       if (solidIcons.has(this.$props.team || '')) return 'fa-solid';
       if (brandIcons.has(this.$props.team || '')) return 'fa-brands';
       return '';
-    }
+    },
   },
 });
 </script>
@@ -123,8 +138,18 @@ export default Vue.defineComponent({
   }
 
   .team {
-    margin-left: 0.25rem;
+    margin-left: 0.35rem;
     color: inherit;
+  }
+
+  .simple-icon {
+    width: 28px;
+    height: 28px;
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   .pronouns {

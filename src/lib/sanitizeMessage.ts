@@ -25,6 +25,8 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
     const src = node.getAttribute('src') || '';
     if (!whitelist.some((item) => item.exec(src))) {
       node.setAttribute('src', 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp');
+    } else {
+      node.setAttribute('title', node.getAttribute('alt') || '');
     }
   }
 });
@@ -34,6 +36,8 @@ export default function sanitizeMessage(message: string, trusted: boolean) {
     return DOMPurify.sanitize(converter.makeHtml(message), {
       FORBID_ATTR: ['style', 'size', 'onerror', 'onload', 'class'],
       FORBID_TAGS: [
+        'svg',
+        'dialog',
         'canvas',
         'table',
         'script',

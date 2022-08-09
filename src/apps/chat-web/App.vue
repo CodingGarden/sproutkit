@@ -11,6 +11,7 @@
 import * as Vue from 'vue';
 import * as timeago from 'timeago.js';
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
+import '@fortawesome/fontawesome-free/css/solid.min.css';
 import '@fortawesome/fontawesome-free/css/brands.min.css';
 import 'flag-icon-css/css/flag-icon.min.css';
 
@@ -78,7 +79,7 @@ export default Vue.defineComponent({
       const followedUsername = (message.message.match(
         /Thank you for following on Twitch (.*)!/,
       ) || [])[1];
-      if (message.username === 'streamlabs' && followedUsername) {
+      if (message.username === 'samwisegardener' && followedUsername) {
         if (followedUsername) {
           message.type = 'follow';
           message.message = getRandomFollowMessage().replace(
@@ -153,7 +154,7 @@ export default Vue.defineComponent({
       const followedUsername = (message.message.match(
         /Thank you for following on Twitch (.*)!/,
       ) || [])[1];
-      if (message.username === 'streamlabs' && followedUsername) {
+      if (message.username === 'samwisegardener' && followedUsername) {
         if (followedUsername) {
           message.type = 'follow';
           message.message = getRandomFollowMessage().replace(

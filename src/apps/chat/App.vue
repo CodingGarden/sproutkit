@@ -215,7 +215,7 @@ export default Vue.defineComponent({
         this.showSearch = false;
       } else {
         this.toggleFilter('greeting');
-        this.filter = '\\b(hi|hello|\'?ello|hey|yo|cheers|greetings|Hiya|sup|wassup|morning|afternoon|evening|howdy|gday|g\'day|codinggHiYo|VoHiYo|bogaHey)\\b';
+        this.filter = '\\b(hi|hello|\'?ello|hey|yo|cheers|greetings|Hiya|sup|wassup|morning|afternoon|evening|howdy|gday|g\'day|codingHiYo|codingHiYoF|VoHiYo|bogaHey)\\b';
         this.showSearch = true;
       }
     },
@@ -307,7 +307,7 @@ export default Vue.defineComponent({
         message.timeSent = timeago.format(message.created_at);
         const followedUsername = (message.message.match(/Thank you for following on Twitch (.*)!/)
         || [])[1];
-        if (message.username === 'streamlabs' && followedUsername) {
+        if (message.username === 'samwisegardener' && followedUsername) {
           if (followedUsername) {
             message.type = 'follow';
             message.message = getRandomFollowMessage().replace(
@@ -395,7 +395,7 @@ export default Vue.defineComponent({
       }
       const followedUsername = (message.message.match(/Thank you for following on Twitch (.*)!/)
         || [])[1];
-      if (message.username === 'streamlabs' && followedUsername) {
+      if (message.username === 'samwisegardener' && followedUsername) {
         if (followedUsername) {
           message.type = 'follow';
           message.message = getRandomFollowMessage().replace(/\{\{username\}\}/g, followedUsername);
