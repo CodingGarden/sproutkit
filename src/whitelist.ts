@@ -17,8 +17,8 @@ export default [
   /^https:\/\/i\.lungers\.com\//,
   /^https:\/\/api\.disstreamchat\.com\/images/,
   /^https:\/\/cdn\.therealpygon\.com\//,
-  /https:\/\/infi\.s-ul\.eu\//,
-  /https:\/\/s\.mrdemonwolf\.com\//,
+  /^https:\/\/infi\.s-ul\.eu\//,
+  /^https:\/\/s\.mrdemonwolf\.com\//,
   /^https:\/\/i\.giphy\.com\/media\/xUPGcl3ijl0vAEyIDK\/giphy\.webp$/,
   /^https:\/\/i\.imgur\.com\/(tcLl4Dz|rD7b0Ki|pukCZL7|TFt8RMh|gtkM6u3|Hl734P3|Pyx1Nqx|UC7eiSh)\.(png|gif)$/,
 ];
