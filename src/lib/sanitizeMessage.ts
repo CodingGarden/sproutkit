@@ -30,7 +30,16 @@ DOMPurify.addHook('uponSanitizeElement', (node, data) => {
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.hasAttribute('src')) {
     const src = node.getAttribute('src') || '';
-    if (!whitelist.some((item) => item.exec(src))) {
+    const regexpWhitelist = whitelist.map((url) => {
+      const escapedUrl = url.replace(/\./g, '\\.'); // Slashes are escaped by the RegExp constructor
+      const fwdSlashCount = escapedUrl.split('/').length - 1;
+      const includesPath = fwdSlashCount - 2 > 0; // Remove the two slashes after the protocol from the count
+      let trailingCharacter: string;
+      if (includesPath) trailingCharacter = url.endsWith('/') ? '' : '$';
+      else trailingCharacter = '/'; // Avoid TLDs like .comcast matching with .com
+      return new RegExp(`^${escapedUrl}${trailingCharacter}`);
+    });
+    if (!regexpWhitelist.some((item) => item.exec(src))) {
       node.setAttribute('src', 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp');
     } else if (node.parentElement?.tagName !== 'SPAN') {
       node.setAttribute('title', node.getAttribute('alt') || '');
