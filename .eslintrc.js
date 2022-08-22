@@ -21,6 +21,7 @@ module.exports = {
     'no-underscore-dangle': 0,
     camelcase: 0,
     'import/extensions': 0,
+    'vue/html-self-closing': 0,
   },
   overrides: [
     {

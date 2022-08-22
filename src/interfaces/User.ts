@@ -16,5 +16,6 @@ export default interface User {
   subscription: Subscription | boolean;
   team?: string;
   status?: string;
+  team_color?: string;
   country?: Country;
 }

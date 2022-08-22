@@ -7,9 +7,9 @@
     <span v-if="pronoun" class="pronouns">({{ pronouns }})</span>
     <span v-if="countryCode" :class="`country flag-icon flag-icon-${countryCode}`"></span>
     <span v-if="team" class="team">
-      <i v-if="!simpleIcon" :title="team" :class="['team-badge', faClass, `fa-${team}`]"></i>
+      <i v-if="!simpleIcon" :title="team" :style="{ color: `#${currentTeamColor}` }" :class="['team-badge', faClass, `fa-${team}`]"></i>
       <div
-        :style="{ fill: `#${simpleIcon.hex}` }"
+        :style="{ fill: `#${currentTeamColor}` }"
         class="simple-icon"
         v-if="simpleIcon"
         v-html="simpleIcon.svg"
@@ -63,12 +63,16 @@ export default Vue.defineComponent({
       type: String,
     },
     /**
-     * The color of the username / team badge.
+     * The color of the username
     */
     color: {
       default: 'inherit',
       type: String,
     },
+    /**
+     * The color of the team
+    */
+    teamColor: String,
     /**
      * The channel id the message was sent in. Ssed to retrieve channel specific badges.
     */
@@ -100,6 +104,10 @@ export default Vue.defineComponent({
         return icon;
       }
       return null;
+    },
+    currentTeamColor(): string {
+      // TODO: make sure color has enough contrast from background
+      return this.$props.teamColor || (this.simpleIcon ? this.simpleIcon.hex : this.$props.color) || 'inherit';
     },
     faClass(): string {
       if (solidIcons.has(this.$props.team || '')) return 'fa-solid';
