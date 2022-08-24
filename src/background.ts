@@ -9,7 +9,7 @@ import {
   /* installVueDevtools */
 } from 'vue-cli-plugin-electron-builder/lib';
 
-import whitelist from './whitelist';
+import { allowUrl } from './whitelist';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -61,7 +61,7 @@ function createWindow() {
       urls: ['*://*/*'],
     };
     session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
-      if (whitelist.some((item) => item.exec(details.url))) return callback({});
+      if (allowUrl(details.url)) return callback({});
       console.log('blocked', details.url);
       return callback({
         redirectURL: 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp',

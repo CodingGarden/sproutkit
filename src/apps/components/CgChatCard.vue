@@ -10,6 +10,7 @@
     :badges="message.badges_raw"
     :countryCode="user.country ? user.country.code : ''"
     :team="user.team"
+    :teamColor="user.team_color"
     :pronoun="user.pronoun"
     :message="content"
     :createdAt="message.timeSent"
@@ -63,7 +64,7 @@
     </template>
     <template v-slot:action-line-start>
       <div class="status-line">
-        <span class="status" v-if="sanitizedStatus" v-html="sanitizedStatus"></span>
+        <!-- <span class="status" v-if="sanitizedStatus" v-html="sanitizedStatus"></span> -->
         <span class="country" v-if="user.country">
           {{user.country.name}}
         </span>

@@ -10,6 +10,7 @@
         :badges="badges"
         :countryCode="countryCode"
         :team="team"
+        :teamColor="teamColor"
         :channelId="channelId"
         :pronoun="pronoun"
       />
@@ -59,6 +60,10 @@ export default Vue.defineComponent({
       type: String,
       default: '#FFFFFF',
     },
+    /**
+     * The color of team.
+    */
+    teamColor: String,
     /**
      * The background color of the card.
     */

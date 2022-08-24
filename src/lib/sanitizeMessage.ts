@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 import showdown from 'showdown';
 
-import whitelist from '../whitelist';
+import { allowUrl } from '../whitelist';
 
 const converter = new showdown.Converter();
 
@@ -30,8 +30,8 @@ DOMPurify.addHook('uponSanitizeElement', (node, data) => {
 DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.hasAttribute('src')) {
     const src = node.getAttribute('src') || '';
-    if (!whitelist.some((item) => item.exec(src))) {
-      node.setAttribute('src', 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp');
+    if (!allowUrl(src)) {
+       node.setAttribute('src', 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp');
     } else if (node.parentElement?.tagName !== 'SPAN') {
       node.setAttribute('title', node.getAttribute('alt') || '');
     }
