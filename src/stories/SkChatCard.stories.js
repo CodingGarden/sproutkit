@@ -43,6 +43,7 @@ export default {
     backgroundColor: "#392f5a",
     createdAt: "42 seconds ago",
     channelId: "413856795",
+    teamColor: 'FFFFFF'
   },
   argTypes: {
     pronoun: {
@@ -62,6 +63,8 @@ export default {
 };
 
 const Template = (args) => {
+  // This is to remove the hash when using the color picker from storybook. The Vue component expects a hex code *without* the hash.
+  args.teamColor = args.teamColor.slice(1)
   return {
     components: { SkChatCard },
     setup() {
