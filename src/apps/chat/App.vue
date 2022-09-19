@@ -525,8 +525,7 @@ export default Vue.defineComponent({
 }
 
 .messages.focus {
-  opacity: 0.3;
-  filter: blur(1px);
+  opacity: 0.5;
   transition: opacity 1s linear;
 }
 

@@ -23,6 +23,7 @@ export const hostnames = [
   'infi.s-ul.eu',
   's.mrdemonwolf.com',
   'cdn.nomercy.tv',
+  'cdn.davidsnyder.tech',
 ];
 
 // TEST: must end with slash
