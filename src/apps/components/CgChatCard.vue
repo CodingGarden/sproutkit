@@ -64,7 +64,7 @@
     </template>
     <template v-slot:action-line-start>
       <div class="status-line">
-        <!-- <span class="status" v-if="sanitizedStatus" v-html="sanitizedStatus"></span> -->
+        <span class="status" v-if="sanitizedStatus" v-html="sanitizedStatus"></span>
         <span class="country" v-if="user.country">
           {{user.country.name}}
         </span>
@@ -194,6 +194,7 @@ export default Vue.defineComponent({
   p {
     display: inline-flex;
     align-items: center;
+    width: 100%;
   }
   // overflow-y: hidden;
 

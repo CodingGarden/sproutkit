@@ -20,10 +20,32 @@ const so = (option: string) => {
   'simplifiedAutoLink',
 ].forEach(so);
 
+interface MessageNode extends Element {
+  maxLevel: boolean;
+  nestLevel: number;
+}
+
 DOMPurify.addHook('uponSanitizeElement', (node, data) => {
+  const messageNode = node as MessageNode;
+  const parentMessageNode = (messageNode.parentElement as unknown as MessageNode);
+  if (messageNode.maxLevel || parentMessageNode?.maxLevel) return;
+  if (parentMessageNode) {
+    parentMessageNode.nestLevel = parentMessageNode.nestLevel || 0;
+    messageNode.nestLevel = parentMessageNode.nestLevel + 1;
+  }
+  if (messageNode.nestLevel - 1 >= 10) {
+    messageNode.maxLevel = true;
+    const getInnerMostNode = (innerNode) => {
+      if (innerNode.children && innerNode.children.length) {
+        return getInnerMostNode(innerNode.children[0]);
+      }
+      return innerNode;
+    };
+    node.innerHTML = getInnerMostNode(node).outerHTML;
+  }
   if (node.tagName === 'IMG' && node.parentElement?.tagName !== 'SPAN' && !node.getAttribute('data-wrapped')) {
-    node.setAttribute("data-wrapped", "true");
-    node.outerHTML = `<span data-wrapper="true" data-title="${node.getAttribute("alt")}">${node.outerHTML}</span>`;
+    node.setAttribute('data-wrapped', 'true');
+    node.outerHTML = `<span data-wrapper="true" data-title="${node.getAttribute('alt')}">${node.outerHTML}</span>`;
   }
 });
 
@@ -31,7 +53,7 @@ DOMPurify.addHook('afterSanitizeAttributes', (node) => {
   if (node.hasAttribute('src')) {
     const src = node.getAttribute('src') || '';
     if (!allowUrl(src)) {
-       node.setAttribute('src', 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp');
+      node.setAttribute('src', 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp');
     } else if (node.parentElement?.tagName !== 'SPAN') {
       node.setAttribute('title', node.getAttribute('alt') || '');
     }
