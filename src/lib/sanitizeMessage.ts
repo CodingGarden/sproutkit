@@ -1,7 +1,7 @@
 import DOMPurify from 'dompurify';
 import showdown from 'showdown';
 
-import { allowUrl } from '../whitelist';
+import { allowUrl } from '../allowlist';
 
 const converter = new showdown.Converter();
 

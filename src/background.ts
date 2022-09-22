@@ -9,7 +9,7 @@ import {
   /* installVueDevtools */
 } from 'vue-cli-plugin-electron-builder/lib';
 
-import { allowUrl } from './whitelist';
+import { allowUrl } from './allowlist';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
