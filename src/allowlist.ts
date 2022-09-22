@@ -23,6 +23,7 @@ export const hostnames = [
   'infi.s-ul.eu',
   's.mrdemonwolf.com',
   'cdn.nomercy.tv',
+  'c.oskr.nl',
   'cdn.davidsnyder.tech',
 ];
 
