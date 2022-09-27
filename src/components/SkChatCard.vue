@@ -191,6 +191,15 @@ export default Vue.defineComponent({
     height: 60%;
     max-height: 200px;
     overflow: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    :deep(p) {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+    }
 
     :deep(span[data-wrapper]):hover::after {
       content: attr(data-title);

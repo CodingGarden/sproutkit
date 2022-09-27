@@ -6,6 +6,7 @@ export const regexps = [
 
 export const hostnames = [
   'api.coding.garden',
+  'iso-3166-flags.netlify.app',
   'fonts.googleapis.com',
   'badges.twitch.tv',
   'static-cdn.jtvnw.net',

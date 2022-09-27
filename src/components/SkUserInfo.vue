@@ -5,7 +5,9 @@
     </span>
     <span class="name">{{ name }} <span v-if="altName">({{ altName }})</span></span>
     <span v-if="pronoun" class="pronouns">({{ pronouns }})</span>
-    <span v-if="countryCode" :class="`country flag-icon flag-icon-${countryCode}`"></span>
+    <span v-if="countryCode" class="country">
+      <img class="country-flag" :src="`https://iso-3166-flags.netlify.app/svg/${countryCode}.svg`" :alt="countryCode" :title="countryCode">
+    </span>
     <span v-if="team" class="team">
       <i v-if="!simpleIcon" :title="team" :style="{ color: `#${currentTeamColor}` }" :class="['team-badge', faClass, `fa-${team}`]"></i>
       <div
@@ -143,6 +145,13 @@ export default Vue.defineComponent({
 
   .country {
     font-size: 1rem;
+    .country-flag {
+      width: 2rem;
+      transition-duration: 500ms;
+    }
+    .country-flag:hover {
+      transform: scale(4);
+    }
   }
 
   .team {
