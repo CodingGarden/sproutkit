@@ -102,7 +102,7 @@ app.on('activate', () => {
 app.on('web-contents-created', (e, contents) => {
   contents.on('will-navigate', (event, url) => {
     event.preventDefault();
-    shell.openExternal(`https://link-me.now.sh/?url=${url}`);
+    shell.openExternal(`https://link-me.now.sh/?url=${encodeURIComponent(url)}`);
   });
   contents.on('new-window', async (event, url) => {
     event.preventDefault();
