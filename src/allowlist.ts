@@ -26,6 +26,7 @@ export const hostnames = [
   'cdn.nomercy.tv',
   'c.oskr.nl',
   'cdn.davidsnyder.tech',
+  'cdn.stup.dev',
 ];
 
 // TEST: must end with slash
