@@ -16,6 +16,7 @@ export const hostnames = [
   'cdn.frankerfacez.com',
   'static.alca.tv',
   'cdn.alca.tv',
+  'r2.alca.tv',
   'secretbyte.net',
   'turnergames.net',
   'i.lungers.com',
