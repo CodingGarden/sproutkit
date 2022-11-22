@@ -36,4 +36,6 @@ export default interface Message {
   ack?: boolean;
   parked?: boolean;
   backgroundColor?: string;
+  msg_id?: string;
+  msg_param_color?: string;
 }

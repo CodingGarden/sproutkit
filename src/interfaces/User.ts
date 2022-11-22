@@ -18,4 +18,5 @@ export default interface User {
   status?: string;
   team_color?: string;
   country?: Country;
+  pronoun?: string;
 }

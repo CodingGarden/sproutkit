@@ -1,10 +1,11 @@
 <template>
+  <!-- TODO: do not hard code channel primary color -->
   <sk-chat-card
     :color="color"
     :backgroundColor="backgroundColor"
     channelId="413856795"
     :name="user.display_name || user.name"
-    :altName="user.display_name.toLowerCase() !== user.name.toLowerCase() ? user.name : ''"
+    :altName="user.display_name?.toLowerCase() !== user.name?.toLowerCase() ? user.name : ''"
     :userColor="userColor"
     :image="trustUser ? (user.profile_image_url || user.logo) : ''"
     :badges="message.badges_raw"
@@ -16,9 +17,12 @@
     :createdAt="message.timeSent"
     :trustMessage="trustMessage"
     :me="message.message_type === 'action'"
+    :announcement="message.msg_id === 'announcement'"
+    :announcementColor="message.msg_param_color?.toLowerCase()"
+    channelPrimaryColor="#56BC58"
     class="message messages-item"
     :class="{
-      highlight: message.type === 'highlight'
+      highlight: message.type === 'highlight',
     }"
   >
     <template v-slot:info-line-end>

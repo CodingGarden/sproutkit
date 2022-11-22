@@ -1,11 +1,12 @@
 <template>
-  <transition-group
+  <!-- <transition-group
       class="messages"
       :class="{ focus }"
       name="messages"
       tag="div"
       id="messages"
-    >
+    > -->
+  <div class="messages">
     <cg-chat-card
       v-for="message in messages"
       :key="message.id"
@@ -17,7 +18,8 @@
       @park="park"
       :buttons="buttons"
     />
-  </transition-group>
+  </div>
+  <!-- </transition-group> -->
 </template>
 
 <script lang="ts">
@@ -45,9 +47,9 @@ export default Vue.defineComponent({
     },
   },
   mounted() {
-    document.addEventListener('mousemove', e => {
-      document.body.style.setProperty('--mouse-x', e.clientX + 'px');
-      document.body.style.setProperty('--mouse-y', e.clientY + 'px');
+    document.addEventListener('mousemove', (e) => {
+      document.body.style.setProperty('--mouse-x', `${e.clientX}px`);
+      document.body.style.setProperty('--mouse-y', `${e.clientY}px`);
     });
   },
   methods: {

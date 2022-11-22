@@ -7,6 +7,7 @@
     "serve:overlay": "vue-cli-service serve ./src/apps/overlay/main.ts",
     "serve:vox": "vue-cli-service serve ./src/apps/vox/main.ts",
     "serve:chat-web": "vue-cli-service serve ./src/apps/chat-web/main.ts",
+    "build:chat-web": "vue-cli-service build ./src/apps/chat-web/main.ts --dest dist_chat-web",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
@@ -18,6 +19,10 @@
     "styleguide:build": "vue-cli-service styleguidist:build"
   },
   "main": "background.js",
+  "description": "Twitch Components for Coding Garden",
+  "author": {
+    "name": "w3cj"
+  },
   "dependencies": {
     "@feathersjs/feathers": "^4.5.15",
     "@feathersjs/socketio-client": "^4.5.15",
@@ -68,6 +73,7 @@
   },
   "license": "MIT",
   "overrides": {
-    "ts-loader": "^8.4.0"
+    "ts-loader": "^8.4.0",
+    "electron-builder": "^23.6.0"
   }
 }

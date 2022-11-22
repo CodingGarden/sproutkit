@@ -385,6 +385,9 @@ export default Vue.defineComponent({
       }
     });
     twitchChat.on('created', (message: any) => {
+      if (message.user_id === this.broadcasterId) {
+        console.log(message);
+      }
       if (message.user_id === this.botId && (message.message.includes('Focus mode ended') || message.message.includes('Focus mode paused'))) {
         this.focus = false;
         return;

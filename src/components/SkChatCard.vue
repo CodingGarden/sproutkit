@@ -1,5 +1,18 @@
 <template>
-  <div class="chat-card" :class="{ me }" :style="{ '--color': color, '--background-color': backgroundColor }">
+  <div
+    class="chat-card"
+    :class="{
+      me,
+      announcement,
+      [`announcement-line--${announcementColor}`]: announcement,
+    }"
+    :style="{
+      '--color': color,
+      '--announcement-color': announcementColor,
+      '--background-color': backgroundColor,
+      '--channel-primary-color': channelPrimaryColor,
+    }"
+  >
     <div class="info-line">
       <sk-avatar v-if="image && !me" :image="image" />
       <sk-user-info
@@ -18,19 +31,26 @@
         <span v-if="sanitizedMessage" :style="{ color: contrastedColor }" v-html="sanitizedMessage"></span>
         <span v-else :style="{ color: contrastedColor }">{{message}}</span>
       </span> -->
-      <div class="info-line-end" :class="{ 'info-line-end-me': me  }">
+      <div class="info-line-end" :class="{ 'info-line-end-me': me }">
         <!-- @slot The space to the right of the user info. -->
         <slot name="info-line-end"></slot>
       </div>
     </div>
-    <span v-if="sanitizedMessage" :style="{ color: me ? contrastedColor : '' }" class="message" v-html="sanitizedMessage"></span>
-    <span v-if="!sanitizedMessage" :style="{ color: me ? contrastedColor : '' }" class="message">{{message}}</span>
+    <span
+      v-if="sanitizedMessage"
+      :style="{ color: me ? contrastedColor : '' }"
+      class="message"
+      v-html="sanitizedMessage"
+    ></span>
+    <span v-if="!sanitizedMessage" :style="{ color: me ? contrastedColor : '' }" class="message">{{
+      message
+    }}</span>
     <div class="action-line" v-if="!me">
-      <div class="line-start">
+      <div class="line-start" v-if="!announcement">
         <!-- @slot The bottom of the card to the left of the time sent. -->
         <slot name="action-line-start"></slot>
       </div>
-      <span v-if="createdAt" class="time-sent">{{createdAt}}</span>
+      <span v-if="createdAt" class="time-sent">{{ createdAt }}</span>
     </div>
   </div>
 </template>
@@ -55,93 +75,99 @@ export default Vue.defineComponent({
   props: {
     /**
      * The color of message text.
-    */
+     */
     color: {
       type: String,
       default: '#FFFFFF',
     },
     /**
      * The color of team.
-    */
+     */
     teamColor: String,
     /**
      * The background color of the card.
-    */
+     */
     backgroundColor: {
       type: String,
       default: '#18181B',
     },
     /**
      * The color of the username / team badge.
-    */
+     */
     userColor: {
       type: String,
       default: '#FFFFFF',
     },
     /**
      * The channel id the message was sent in. Ssed to retrieve channel specific badges.
-    */
+     */
     channelId: String,
     /**
      * The username to display.
-    */
+     */
     name: String,
     /**
      * The alt-name to display.
-    */
+     */
     altName: String,
     /**
      * The avatar image to display.
-    */
+     */
     image: String,
     /**
      * The raw badge string from twitch irc.
-    */
+     */
     badges: String,
     /**
      * 2 Character Country code. Used to display a flag next to the users name.
-    */
+     */
     countryCode: String,
     /**
      * The name of the team badge. Can be any valid font awesome brand name.
-    */
+     */
     team: String,
     /**
      * The pronoun to display
-    */
+     */
     pronoun: String,
     /**
      * The message text to display.
-    */
+     */
     message: String,
     /**
      * The time the message was sent.
-    */
+     */
     createdAt: String,
     /**
      * Set to true to sanitize the message with DOMPurify
-    */
+     */
     trustMessage: {
       type: Boolean,
       default: false,
     },
     /**
      * Set to true if the message text color should be the same as the user color
-    */
+     */
     me: Boolean,
+    announcement: {
+      type: Boolean,
+      required: false,
+    },
+    announcementColor: {
+      type: String,
+      required: false,
+    },
+    channelPrimaryColor: {
+      type: String,
+      required: false,
+    },
   },
   computed: {
     sanitizedMessage(): string {
-      return sanitizeMessage(
-        this.$props.message || '',
-        this.$props.trustMessage,
-      );
+      return sanitizeMessage(this.$props.message || '', this.$props.trustMessage);
     },
     contrastedColor(): string {
-      return getContrastedColor(
-        this.$props.userColor,
-        this.$props.backgroundColor,
-      );
+      return getContrastedColor(this.$props.userColor, this.$props.backgroundColor);
     },
   },
 });
@@ -162,6 +188,35 @@ export default Vue.defineComponent({
   border-radius: var(--border-radius);
   font-size: var(--font-size);
 
+  &.announcement {
+    border-inline-width: 10px;
+    border-inline-style: solid;
+    border-image-slice: 1;
+  }
+
+  &.announcement-line--primary {
+    border-image-source: linear-gradient(
+      var(--channel-primary-color),
+      var(--channel-primary-color)
+    );
+  }
+
+  &.announcement-line--purple {
+    border-image-source: linear-gradient(#9146ff, #ff75e6);
+  }
+
+  &.announcement-line--blue {
+    border-image-source: linear-gradient(#00d6d6, #9146ff);
+  }
+
+  &.announcement-line--green {
+    border-image-source: linear-gradient(#00db84, #57bee6);
+  }
+
+  &.announcement-line--orange {
+    border-image-source: linear-gradient(#ffb31a, #e0e000);
+  }
+
   .info-line {
     display: flex;
     position: relative;
@@ -176,6 +231,7 @@ export default Vue.defineComponent({
     max-height: 200px;
     overflow-wrap: break-word;
     overflow: auto;
+
     .message {
       font-style: italic;
       margin: 0;
@@ -212,7 +268,6 @@ export default Vue.defineComponent({
       left: var(--mouse-x);
     }
   }
-
 
   .action-line {
     display: flex;

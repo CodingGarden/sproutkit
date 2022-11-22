@@ -26,3 +26,5 @@ yarn-error.log*
 styleguide
 #Electron-builder output
 /dist_electron
+
+/dist_chat-web
