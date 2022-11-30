@@ -126,7 +126,7 @@ export default Vue.defineComponent({
         || this.$props.message.type === 'highlight'
         || this.$props.message.type === 'reward'
       ) return '#000000';
-      return this.message.color || '#FFFFFF';
+      return typeof this.message.color === 'string' ? this.message.color : '#FFFFFF';
     },
     backgroundColor(): string {
       if (this.$props.message.first_msg) return '#95190CDD';

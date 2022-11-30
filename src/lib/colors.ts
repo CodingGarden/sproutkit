@@ -21,6 +21,9 @@ const contrastCache = new Map<string, string>();
 
 // eslint-disable-next-line import/prefer-default-export
 export function getContrastedColor(foreground = '#FFFFFF', background = '#000000'): string {
+  if (typeof foreground !== 'string') {
+    foreground = '#FFFFFF';
+  }
   if (contrastCache.has(foreground + background)) return contrastCache.get(foreground + background) as string;
   const foregroundRGB = convert.hex.rgb(foreground.slice(1, 7));
   const backgroundRGB = convert.hex.rgb(background.slice(1, 7));
