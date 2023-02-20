@@ -2,12 +2,13 @@
 // @ts-nocheck
 
 import {
-  app, protocol, BrowserWindow, session, shell,
+  app, protocol, BrowserWindow, session, shell, ipcMain,
 } from 'electron';
 import {
   createProtocol,
   /* installVueDevtools */
 } from 'vue-cli-plugin-electron-builder/lib';
+import path from 'path';
 
 import { allowUrl } from './allowlist';
 
@@ -39,7 +40,14 @@ function createWindow() {
     backgroundColor: '#00FFFFFF',
     webPreferences: {
       nodeIntegration: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
+  });
+
+  const avatarUrls = new Set();
+
+  ipcMain.on('allow-avatar', (event, url) => {
+    avatarUrls.add(url);
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -61,7 +69,7 @@ function createWindow() {
       urls: ['*://*/*'],
     };
     session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
-      if (allowUrl(details.url)) return callback({});
+      if (avatarUrls.has(details.url) || allowUrl(details.url)) return callback({});
       console.log('blocked', details.url);
       return callback({
         redirectURL: 'https://i.giphy.com/media/xUPGcl3ijl0vAEyIDK/giphy.webp',

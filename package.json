@@ -36,6 +36,7 @@
     "dompurify": "^2.4.0",
     "flag-icon-css": "^3.5.0",
     "node-fetch": "^3.2.10",
+    "pinia": "^2.0.31",
     "showdown": "^2.1.0",
     "simple-icons": "^7.21.0",
     "socket.io-client": "^2.5.0",

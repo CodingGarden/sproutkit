@@ -79,6 +79,7 @@ export default function sanitizeMessage(message: string, trusted: boolean) {
         'textarea',
         'frame',
         'frameset',
+        'meta',
       ],
     });
   }

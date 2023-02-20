@@ -6,7 +6,7 @@
       tag="div"
       id="messages"
     > -->
-  <div class="messages">
+  <div class="messages" :class="{ focus }">
     <cg-chat-card
       v-for="message in messages"
       :key="message.id"

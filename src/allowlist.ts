@@ -46,7 +46,10 @@ export const urls = [
   'https://i.imgur.com/UC7eiSh.png',
 ];
 
+export const avatarUrls = new Set();
+
 export function allowUrl(url: string) {
+  if (avatarUrls.has(url)) return true;
   if (regexps.some((regexp) => regexp.test(url))) return true;
   try {
     const { hostname } = new URL(url);

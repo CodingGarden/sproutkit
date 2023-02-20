@@ -23,6 +23,7 @@
     class="message messages-item"
     :class="{
       highlight: message.type === 'highlight',
+      resub: message.msg_id === 'resub',
     }"
   >
     <template v-slot:info-line-end>
@@ -68,6 +69,12 @@
     </template>
     <template v-slot:action-line-start>
       <div class="status-line">
+        <span class="resub-info" v-if="message.msg_id === 'resub'">
+          Subbed for {{message.msg_param_cumulative_months}} months
+          <span v-if="message.msg_param_should_share_streak === '1'">
+            with a {{message.msg_param_streak_months}} month streak.
+          </span>
+        </span>
         <span class="status" v-if="sanitizedStatus" v-html="sanitizedStatus"></span>
         <span class="country" v-if="user.country">
           {{user.country.name}}
@@ -129,11 +136,12 @@ export default Vue.defineComponent({
       return typeof this.message.color === 'string' ? this.message.color : '#FFFFFF';
     },
     backgroundColor(): string {
-      if (this.$props.message.first_msg) return '#95190CDD';
+      if (this.$props.message.first_msg) return '#56BC58DD';
       if (this.$props.message.backgroundColor) return `${this.$props.message.backgroundColor}CC`;
       if (this.$props.message.type === 'reward') return '#454ADEDD';
       if (this.$props.message.type === 'follow') return '#99B2DDDD';
       if (this.$props.message.type === 'highlight') return '#BD2D87DD';
+      if (this.$props.message.platform === 'youtube') return '#95190CDD';
       return this.trustUser ? '#392F5ADD' : '#191D32AA';
     },
     content(): string {
@@ -174,6 +182,15 @@ export default Vue.defineComponent({
 .highlight {
   font-weight: bold;
   font-size: 2rem !important;
+}
+
+.resub {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='%239C92AC' fill-opacity='0.2'%3E%3Cpolygon fill-rule='evenodd' points='8 4 12 6 8 8 6 12 4 8 0 6 4 4 6 0 8 4'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.resub-info {
+  font-size: 1rem;
+  font-style: italic;
 }
 
 .status-line {

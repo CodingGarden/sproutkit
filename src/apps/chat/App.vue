@@ -4,6 +4,13 @@
       <input v-if="showSearch" ref="input" class="action-input" v-model="filter" />
       <button
         class="action-button"
+        @click="toggleFocusMode()"
+        :class="{ active: focus }"
+      >
+        🎯
+      </button>
+      <button
+        class="action-button"
         @click="toggleFilter('firstMessage')"
         :class="{ active: filters.firstMessage }"
       >
@@ -18,11 +25,11 @@
       </button>
       <button
         class="action-button"
-        @click="toggleFilter('follow')"
-        :class="{ active: filters.follow }"
+        @click="toggleFilter('resub')"
+        :class="{ active: filters.resub }"
       >
-        💚
-        <span v-if="visibleFollows.length" class="count">{{ visibleFollows.length }}</span>
+        🌟
+        <span v-if="resubMessages.length" class="count">{{ resubMessages.length }}</span>
       </button>
       <button
         class="action-button"
@@ -52,11 +59,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as Vue from 'vue';
 import * as timeago from 'timeago.js';
+import { mapActions, mapState } from 'pinia';
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import '@fortawesome/fontawesome-free/css/solid.min.css';
 import '@fortawesome/fontawesome-free/css/brands.min.css';
 import 'flag-icon-css/css/flag-icon.min.css';
 
+import useYoutubeStore from '@/stores/youtube';
 import CgMessageList from '@/apps/components/CgMessageList.vue';
 import followMessages from '@/apps/lib/followMessages';
 import { twitchChat, twitchUsers, twitchRewards } from '@/lib/services';
@@ -84,6 +93,7 @@ export default Vue.defineComponent({
     follows: [] as Message[],
     filters: {
       firstMessage: false,
+      resub: false,
       greeting: false,
       follow: false,
       reward: false,
@@ -92,6 +102,10 @@ export default Vue.defineComponent({
     },
   }),
   computed: {
+    allTheMessagesForReal() {
+      return this.allMessages.concat(this.youtubeMessages);
+    },
+    ...mapState(useYoutubeStore, { youtubeMessages: 'messages' }),
     filter: {
       get() {
         return this.filterValue;
@@ -102,6 +116,11 @@ export default Vue.defineComponent({
           this.filterValue = value;
         }, 500);
       },
+    },
+    resubMessages(): Message[] {
+      return this.allMessages
+        .filter((m) => !m.ack && m.msg_id === 'resub')
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     },
     firstMessages(): Message[] {
       return this.allMessages
@@ -119,14 +138,14 @@ export default Vue.defineComponent({
         .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     },
     parked(): Message[] {
-      return this.allMessages
+      return this.allTheMessagesForReal
         .filter((m) => !m.ack && m.parked)
         .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     },
     greetings(): Message[] {
       const regexp = new RegExp(this.filter, 'gi');
       const seenUser = new Set();
-      return this.allMessages
+      return this.allTheMessagesForReal
         .slice(0)
         .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
         .filter((m) => {
@@ -153,8 +172,8 @@ export default Vue.defineComponent({
         }
       }
       const regexp = new RegExp(filter, 'gi');
-      const messages = (username || filter) ? this.allMessages : this.messages;
-      return messages.filter((m) => {
+      // const messages = (username || filter) ? this.allMessages : this.messages;
+      return this.allTheMessagesForReal.filter((m) => {
         let showMessage = !m.ack && !m.parked;
         if (username) {
           showMessage = showMessage && !!m.username.match(username);
@@ -166,6 +185,7 @@ export default Vue.defineComponent({
       }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     },
     visibleMessages(): Message[] {
+      if (this.filters.resub) return this.resubMessages;
       if (this.filters.follow) return this.visibleFollows;
       if (this.filters.reward) return this.rewards;
       if (this.filters.parked) return this.parked;
@@ -175,6 +195,10 @@ export default Vue.defineComponent({
     },
   },
   methods: {
+    ...mapActions(useYoutubeStore, { initYoutube: 'init' }),
+    toggleFocusMode() {
+      this.focus = !this.focus;
+    },
     async ack(message: Message) {
       message.ack = true;
       if (message.type === 'reward') {
@@ -254,6 +278,7 @@ export default Vue.defineComponent({
       }, 5000);
     });
     const messageIds = new Set();
+    await this.initYoutube();
     const messages = await twitchChat.find({
       query: {
         // created_at: new Date('2020-08-10'),
@@ -445,6 +470,10 @@ export default Vue.defineComponent({
   opacity: 1;
 }
 
+#app.active .action-bar.focus {
+  opacity: 0.3;
+}
+
 .action-bar {
   position: fixed;
   opacity: 0;
@@ -486,10 +515,6 @@ export default Vue.defineComponent({
   .action-button:active {
     border: 2px solid black;
     background: #724e91;
-  }
-
-  &.focus {
-    opacity: 0.3;
   }
 }
 

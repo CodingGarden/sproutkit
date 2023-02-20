@@ -38,4 +38,14 @@ export default interface Message {
   backgroundColor?: string;
   msg_id?: string;
   msg_param_color?: string;
+  msg_param_cumulative_months?: string;
+  msg_param_months?: string;
+  msg_param_multimonth_duration?: string;
+  msg_param_multimonth_tenure?: string;
+  msg_param_should_share_streak?: string;
+  msg_param_streak_months?: string;
+  msg_param_sub_plan?: string;
+  msg_param_sub_plan_name?: string;
+  msg_param_was_gifted?: string;
+  platform?: 'youtube',
 }

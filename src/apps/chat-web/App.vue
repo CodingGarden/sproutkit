@@ -10,11 +10,13 @@
 
 import * as Vue from 'vue';
 import * as timeago from 'timeago.js';
+import { mapActions, mapState } from 'pinia';
 import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
 import '@fortawesome/fontawesome-free/css/solid.min.css';
 import '@fortawesome/fontawesome-free/css/brands.min.css';
 import 'flag-icon-css/css/flag-icon.min.css';
 
+import useYoutubeStore from '@/stores/youtube';
 import CgMessageList from '@/apps/components/CgMessageList.vue';
 import followMessages from '@/apps/lib/followMessages';
 import { twitchChat, twitchUsers, twitchRewards } from '@/lib/services';
@@ -33,16 +35,21 @@ export default Vue.defineComponent({
     messages: [] as Message[],
   }),
   computed: {
+    ...mapState(useYoutubeStore, { youtubeMessages: 'messages' }),
     recentMessages(): Message[] {
-      return this.messages.filter(
+      return this.messages.concat(this.youtubeMessages).filter(
         // @ts-ignore
         (m) => !m.ack
             && m.type !== 'command',
         // && new Date(m.created_at) > Date.now() - 1000 * 60),
-      ).slice(0, 20);
+      ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 20);
     },
   },
+  methods: {
+    ...mapActions(useYoutubeStore, { initYoutube: 'init' }),
+  },
   async created() {
+    this.initYoutube();
     const messageIds = new Set();
     const messages = await twitchChat.find({
       query: {

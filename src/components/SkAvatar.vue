@@ -1,6 +1,6 @@
 <template>
   <div class="avatar" :style="{ '--size': size }">
-    <img :src="image" />
+    <img :src="image" referrerpolicy="no-referrer" />
     <span class="sub-badge" v-if="subscriberBadge">
       <img :src="subscriberBadge" />
     </span>
