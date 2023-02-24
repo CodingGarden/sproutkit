@@ -124,6 +124,7 @@ export default Vue.defineComponent({
         this.$props.message.type === 'follow'
         || this.$props.message.type === 'highlight'
         || this.$props.message.type === 'reward'
+        || this.$props.message.first_msg
       ) return '#000000';
       return '#FFFFFF';
     },
@@ -132,6 +133,7 @@ export default Vue.defineComponent({
         this.$props.message.type === 'follow'
         || this.$props.message.type === 'highlight'
         || this.$props.message.type === 'reward'
+        || this.$props.message.first_msg
       ) return '#000000';
       return typeof this.message.color === 'string' ? this.message.color : '#FFFFFF';
     },
