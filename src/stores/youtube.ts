@@ -35,6 +35,11 @@ function convertYouTubeUser(youtubeUser: YouTubeUser): TwitchUser {
       created_at: new Date(), // TODO: get actual created date
       sub_plan: youtubeUser.membership.name,
     } : false,
+    team: youtubeUser.team,
+    country: youtubeUser.country,
+    status: youtubeUser.status,
+    team_color: youtubeUser.team_color,
+    pronoun: youtubeUser.pronoun,
   };
 }
 
@@ -75,6 +80,7 @@ function convertYouTubeMessage(youtubeMessage: YouTubeMessage): TwitchMessage {
     // content?: string;
     timeSent: youtubeMessage.timeSent,
     first_msg: false,
+    color: youtubeMessage.user ? youtubeMessage.user.color : undefined,
     // type?: string;
     user: youtubeMessage.user ? convertYouTubeUser(youtubeMessage.user) : undefined,
     // ack: false,

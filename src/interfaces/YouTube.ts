@@ -1,3 +1,5 @@
+import Country from "./Country";
+
 export interface Membership {
   id: string;
   name: string;
@@ -16,6 +18,12 @@ export interface User {
   is_verified: boolean;
   logo: string;
   membership: Membership | null;
+  color?: string;
+  team?: string;
+  country?: Country;
+  status?: string;
+  team_color?: string;
+  pronoun?: string;
 }
 
 export interface Message {
