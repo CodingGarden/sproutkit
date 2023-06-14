@@ -28,6 +28,7 @@ export const hostnames = [
   'c.oskr.nl',
   'cdn.davidsnyder.tech',
   'cdn.stup.dev',
+  'cloud.faab007.nl',
 ];
 
 // TEST: must end with slash
