@@ -1,3 +1,4 @@
+import { twitchBadges } from '@/lib/services';
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import Badge from '@/interfaces/Badge';
 import BadgesResponse, {
@@ -18,8 +19,7 @@ const badgeInfoCache = new Map<string, BadgesResponse>();
 async function getBadgeInfo() {
   if (badgeInfoCache.has('global')) return badgeInfoCache.get('global');
   const badgePromise = (async () => {
-    const response = await fetch(`${BADGES_BASE_URL}/global/display`);
-    const badgeInfo = (await response.json()) as BadgesResponse;
+    const badgeInfo = await twitchBadges.get('global') as BadgesResponse;
     badgeInfoCache.set('global', badgeInfo);
     return badgeInfo;
   })();
@@ -31,10 +31,7 @@ async function getBadgeInfo() {
 async function getChannelBadgeInfo(channelId: string) {
   if (badgeInfoCache.has(channelId)) return badgeInfoCache.get(channelId);
   const badgePromise = (async () => {
-    const response = await fetch(
-      `${BADGES_BASE_URL}/channels/${channelId}/display`,
-    );
-    const badgeInfo = (await response.json()) as BadgesResponse;
+    const badgeInfo = await twitchBadges.get(channelId) as BadgesResponse;
     badgeInfoCache.set(channelId, badgeInfo);
     return badgeInfo;
   })();

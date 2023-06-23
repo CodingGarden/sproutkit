@@ -40,7 +40,7 @@ export default Vue.defineComponent({
       return this.messages.concat(this.youtubeMessages).filter(
         // @ts-ignore
         (m) => !m.ack
-            && m.type !== 'command',
+          && m.type !== 'command',
         // && new Date(m.created_at) > Date.now() - 1000 * 60),
       ).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 20);
     },
@@ -51,78 +51,79 @@ export default Vue.defineComponent({
   async created() {
     this.initYoutube();
     const messageIds = new Set();
-    const messages = await twitchChat.find({
-      query: {
-        commands: false,
-      },
-    });
-    const allMessages = messages
-      // @ts-ignore
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .filter((message: Message) => {
-        if (messageIds.has(message.id)) return false;
-        // @ts-ignore
-        // if (new Date(message.created_at) < Date.now() - 1000 * 60) return false;
-        messageIds.add(message.id);
-        message.timeSent = timeago.format(message.created_at);
-        return true;
+    (async () => {
+      const messages = await twitchChat.find({
+        query: {
+          commands: false,
+        },
       });
-    const names = [
-      ...new Set(allMessages.map((message: Message) => message.username)),
-    ];
-    const users = await twitchUsers.find({
-      query: {
-        names,
-      },
-    });
-    const usersByName = users.reduce(
-      (byName: Map<string, User>, user: User) => {
-        byName.set(user.name, user);
-        return byName;
-      },
-      new Map<string, User>(),
-    );
-    allMessages.forEach((message: any) => {
-      const followedUsername = (message.message.match(
-        /Thank you for following on Twitch (.*)!/,
-      ) || [])[1];
-      if (message.username === 'samwisegardener' && followedUsername) {
-        if (followedUsername) {
-          message.type = 'follow';
-          message.message = getRandomFollowMessage().replace(
-            /\{\{username\}\}/g,
-            `<strong>${followedUsername}</strong>`,
-          );
-          message.color = '#F8C630';
-          message.badges_raw = '';
-          message.user = {
-            name: '',
-            display_name: '👋 Follow  👋',
-            logo: 'https://i.imgur.com/rD7b0Ki.png',
-            follow: true,
+      const allMessages = messages
+        // @ts-ignore
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .filter((message: Message) => {
+          if (messageIds.has(message.id)) return false;
+          // @ts-ignore
+          // if (new Date(message.created_at) < Date.now() - 1000 * 60) return false;
+          messageIds.add(message.id);
+          message.timeSent = timeago.format(message.created_at);
+          return true;
+        });
+      const names = [
+        ...new Set(allMessages.map((message: Message) => message.username)),
+      ];
+      const users = await twitchUsers.find({
+        query: {
+          names,
+        },
+      });
+      const usersByName = users.reduce(
+        (byName: Map<string, User>, user: User) => {
+          byName.set(user.name, user);
+          return byName;
+        },
+        new Map<string, User>(),
+      );
+      allMessages.forEach((message: any) => {
+        const followedUsername = (message.message.match(
+          /Thank you for following on Twitch (.*)!/,
+        ) || [])[1];
+        if (message.username === 'samwisegardener' && followedUsername) {
+          if (followedUsername) {
+            message.type = 'follow';
+            message.message = getRandomFollowMessage().replace(
+              /\{\{username\}\}/g,
+              `<strong>${followedUsername}</strong>`,
+            );
+            message.color = '#F8C630';
+            message.badges_raw = '';
+            message.user = {
+              name: '',
+              display_name: '👋 Follow  👋',
+              logo: 'https://i.imgur.com/rD7b0Ki.png',
+              follow: true,
+            };
+          }
+        } else {
+          if (message.message.match(/^!\w/)) {
+            message.type = 'command';
+          }
+
+          if (message.msg_id === 'highlighted-message') {
+            message.type = 'highlight';
+          }
+
+          message.user = usersByName.get(message.username) || {
+            name: 'Not Found',
           };
         }
-      } else {
-        if (message.message.match(/^!\w/)) {
-          message.type = 'command';
-        }
-
-        if (message.msg_id === 'highlighted-message') {
-          message.type = 'highlight';
-        }
-
-        message.user = usersByName.get(message.username) || {
-          name: 'Not Found',
-        };
-      }
-    });
-    this.messages = allMessages;
+      });
+      this.messages = allMessages;
+    })();
     twitchRewards.on('created', (data: any) => {
       const { redemption } = data;
       const content = `${redemption.user.display_name
-        || redemption.user.login} has redeemed: ${redemption.reward.title} - ${
-        redemption.reward.prompt
-      }`;
+        || redemption.user.login} has redeemed: ${redemption.reward.title} - ${redemption.reward.prompt
+        }`;
 
       const message = {
         id: redemption.id,
@@ -291,7 +292,9 @@ a:visited {
   color: #e6af2e;
 }
 
-big, h1, h2 {
+big,
+h1,
+h2 {
   font-size: 0.8em;
 }
 </style>

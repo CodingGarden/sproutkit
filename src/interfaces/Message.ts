@@ -47,5 +47,11 @@ export default interface Message {
   msg_param_sub_plan?: string;
   msg_param_sub_plan_name?: string;
   msg_param_was_gifted?: string;
-  platform?: 'youtube',
+  platform?: 'youtube';
+  pinned_chat_paid_amount: string;
+  pinned_chat_paid_canonical_amount: string;
+  pinned_chat_paid_currency: string;
+  pinned_chat_paid_exponent: string;
+  pinned_chat_paid_is_system_message: string;
+  pinned_chat_paid_level: string;
 }

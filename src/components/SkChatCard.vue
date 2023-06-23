@@ -45,6 +45,9 @@
     <span v-if="!sanitizedMessage" :style="{ color: me ? contrastedColor : '' }" class="message">{{
       message
     }}</span>
+    <span v-if="isHypeChat" class="message hype-chat">
+      <svg width="2rem" height="2rem" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.91 2.073 13 9l1.88 1.071a1 1 0 0 1 .036 1.717l-9.825 6.14L7 11 5.12 9.929a1 1 0 0 1-.035-1.717l9.824-6.14zm-6.784 11.6L9 10 7 9l4.874-2.672L11 10l2 1-4.874 2.673z" clip-rule="evenodd"></path></svg> {{ formattedHypeChatAmount }} {{ tags?.pinned_chat_paid_currency }}
+    </span>
     <div class="action-line" v-if="!me">
       <div class="line-start" v-if="!announcement">
         <!-- @slot The bottom of the card to the left of the time sent. -->
@@ -60,6 +63,7 @@ import * as Vue from 'vue';
 
 import { getContrastedColor } from '@/lib/colors';
 import sanitizeMessage from '@/lib/sanitizeMessage';
+import Message from '@/interfaces/Message';
 import SkAvatar from '@/components/SkAvatar.vue';
 import SkUserInfo from '@/components/SkUserInfo.vue';
 
@@ -73,6 +77,13 @@ export default Vue.defineComponent({
     SkUserInfo,
   },
   props: {
+    tags: {
+      type: Object as Vue.PropType<Message>,
+    },
+    isHypeChat: {
+      type: Boolean,
+      default: false,
+    },
     /**
      * The color of message text.
      */
@@ -163,6 +174,10 @@ export default Vue.defineComponent({
     },
   },
   computed: {
+    formattedHypeChatAmount() {
+      if (!this.$props.tags?.pinned_chat_paid_level) return '';
+      return (Number(this.$props.tags.pinned_chat_paid_canonical_amount) * parseFloat(`1e-${this.$props.tags.pinned_chat_paid_exponent}`)).toFixed(2);
+    },
     sanitizedMessage(): string {
       return sanitizeMessage(this.$props.message || '', this.$props.trustMessage);
     },
@@ -174,7 +189,7 @@ export default Vue.defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import url("https://fonts.googleapis.com/css?family=Montserrat&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;900&display=swap");
 
 .chat-card {
   font-family: "Montserrat", sans-serif;
@@ -182,7 +197,7 @@ export default Vue.defineComponent({
   --color: #fff;
   --border-radius: 1rem;
   --font-size: 1.5rem;
-  background-color: var(--background-color);
+  background: var(--background-color);
   color: var(--color);
   padding: 1rem;
   border-radius: var(--border-radius);
@@ -250,6 +265,10 @@ export default Vue.defineComponent({
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+
+    &.hype-chat {
+      font-weight: 900;
+    }
 
     :deep(p) {
       display: flex;

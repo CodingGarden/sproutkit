@@ -7,7 +7,7 @@
     :name="user.display_name || user.name"
     :altName="user.display_name?.toLowerCase() !== user.name?.toLowerCase() ? user.name : ''"
     :userColor="userColor"
-    :image="trustUser ? (user.profile_image_url || user.logo) : ''"
+    :image="trustUser ? user.profile_image_url || user.logo : ''"
     :badges="message.badges_raw"
     :countryCode="user.country ? user.country.code : ''"
     :team="user.team"
@@ -20,6 +20,8 @@
     :announcement="message.msg_id === 'announcement'"
     :announcementColor="message.msg_param_color?.toLowerCase()"
     channelPrimaryColor="#56BC58"
+    :isHypeChat="!!message.pinned_chat_paid_level"
+    :tags="message"
     class="message messages-item"
     :class="{
       highlight: message.type === 'highlight',
@@ -70,14 +72,14 @@
     <template v-slot:action-line-start>
       <div class="status-line">
         <span class="resub-info" v-if="message.msg_id === 'resub'">
-          Subbed for {{message.msg_param_cumulative_months}} months
+          Subbed for {{ message.msg_param_cumulative_months }} months
           <span v-if="message.msg_param_should_share_streak === '1'">
-            with a {{message.msg_param_streak_months}} month streak.
+            with a {{ message.msg_param_streak_months }} month streak.
           </span>
         </span>
         <span class="status" v-if="sanitizedStatus" v-html="sanitizedStatus"></span>
         <span class="country" v-if="user.country">
-          {{user.country.name}}
+          {{ user.country.name }}
         </span>
       </div>
     </template>
@@ -91,6 +93,31 @@ import sanitizeMessage from '@/lib/sanitizeMessage';
 import SkChatCard from '@/components/SkChatCard.vue';
 import User from '@/interfaces/User';
 import Message from '@/interfaces/Message';
+
+const chatLevelColors = new Map<string, string>([
+  ['ONE', '#6b816e'],
+  ['TWO', '#32843b'],
+  ['THREE', '#007a6c'],
+  ['FOUR', '#0080a9'],
+  ['FIVE', '#0070db'],
+  ['SIX', 'linear-gradient(90deg,#016dda,#0404ac,#016dda,#0404ac)'],
+  ['SEVEN', 'linear-gradient(90deg,#7614c7,#5060fc,#7614c7,#5060fc)'],
+  ['EIGHT', 'linear-gradient(90deg,#a001d4,#d211a3,#a001d4,#d211a3)'],
+  ['NINE', 'linear-gradient(90deg,#9004bd,#cb4227,#9004bd,#cb4227)'],
+  ['TEN', 'linear-gradient(90deg,#3919bc,#cf0110,#3919bc,#cf0110)'],
+]);
+
+// .paid - pinned - chat - message - coloring - animated - gradient {
+//   animation: gradient - transition 10s linear infinite
+// }
+// @keyframes gradient - transition {
+//   0 % {
+//     transform: translateX(0)
+//   }
+//  to {
+//     transform: translateX(200 %)
+//   }
+// }
 
 export default Vue.defineComponent({
   components: {
@@ -125,7 +152,7 @@ export default Vue.defineComponent({
         || this.$props.message.type === 'highlight'
         || this.$props.message.type === 'reward'
         || this.$props.message.first_msg
-      ) return '#000000';
+      ) { return '#000000'; }
       return '#FFFFFF';
     },
     userColor(): string {
@@ -134,10 +161,11 @@ export default Vue.defineComponent({
         || this.$props.message.type === 'highlight'
         || this.$props.message.type === 'reward'
         || this.$props.message.first_msg
-      ) return '#000000';
+      ) { return '#000000'; }
       return typeof this.message.color === 'string' ? this.message.color : '#FFFFFF';
     },
     backgroundColor(): string {
+      if (this.$props.message.pinned_chat_paid_level) { return chatLevelColors.get(this.$props.message.pinned_chat_paid_level) || '#32843b'; }
       if (this.$props.message.first_msg) return '#56BC58DD';
       if (this.$props.message.backgroundColor) return `${this.$props.message.backgroundColor}CC`;
       if (this.$props.message.type === 'reward') return '#454ADEDD';
@@ -161,10 +189,9 @@ export default Vue.defineComponent({
       );
     },
     sanitizedStatus(): string {
-      return this.$props.user.status ? sanitizeMessage(
-        this.$props.user.status,
-        this.trustMessage,
-      ) : '';
+      return this.$props.user.status
+        ? sanitizeMessage(this.$props.user.status, this.trustMessage)
+        : '';
     },
   },
 });
@@ -181,6 +208,7 @@ export default Vue.defineComponent({
     cursor: pointer;
   }
 }
+
 .highlight {
   font-weight: bold;
   font-size: 2rem !important;
@@ -214,11 +242,13 @@ export default Vue.defineComponent({
   margin-bottom: 0.35rem;
   max-height: 2.5rem;
   max-width: 60%;
+
   p {
     display: inline-flex;
     align-items: center;
     width: 100%;
   }
+
   // overflow-y: hidden;
 
   img[src$="#emote"] {

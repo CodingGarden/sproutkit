@@ -52,11 +52,13 @@ function createWindow() {
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
+    // win.loadURL('https://www.giambaj.it/twitch/jchat/v2/?channel=codinggarden&animate=true&fade=30&hide_commands=true&size=2&font=4&shadow=3');
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string);
     if (!process.env.IS_TEST) win.webContents.openDevTools();
   } else {
     createProtocol('app');
     // Load the index.html when not in development
+    // win.loadURL('https://www.giambaj.it/twitch/jchat/v2/?channel=codinggarden&animate=true&fade=30&hide_commands=true&size=2&font=4&shadow=3');
     win.loadURL(`file://${__dirname}/index.html`);
   }
 

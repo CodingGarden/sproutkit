@@ -29,11 +29,20 @@ export const hostnames = [
   'cdn.davidsnyder.tech',
   'cdn.stup.dev',
   'cloud.faab007.nl',
+  'www.giambaj.it',
+  'giambaj.it',
+  'api.betterttv.net',
+  'api.7tv.app',
+  'api.ffzap.com',
+  'api.chatterino.com',
+  'api.frankerfacez.com',
+  'twemoji.maxcdn.com',
 ];
 
 // TEST: must end with slash
 export const startsWith = [
   'https://cdn.jsdelivr.net/npm/simple-icons@v7/icons/',
+  'https://cdn.jsdelivr.net/gh/twitter/twemoji@v13.1.0/assets/',
 ];
 
 export const urls = [
